@@ -1,0 +1,24 @@
+# Virtual environment
+/.venv
+
+# Python cache
+**/__pycache__/
+
+# init files
+**/__init__.py
+
+# CLAUDE.md
+/CLAUDE.md
+
+# Notebooks
+/notebooks
+
+# Corpus of pdf and txt files
+/corpus
+
+# Qdrant
+/qdrant_storage
+
+# Documentation
+/documentation/chunking_review.json
+/documentation/resumen_proyecto_tfm.md

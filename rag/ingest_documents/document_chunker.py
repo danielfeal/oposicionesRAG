@@ -34,7 +34,7 @@ class ChunkRecord(TypedDict):
     doc_date: str | None
     source_url: str | None
     exams_id: list[str]
-    tema: str | None
+    tema: list[str]
     tipo_seccion: str
     sección: str | None
     n_tokens: int | None
@@ -468,8 +468,8 @@ class DocumentChunker:
         chunks, n_split = self._split_long_chunks(chunks)
         n_after_split = len(chunks)
 
-        raw_exams_id = metadata_row.get("exams_id") or ""
-        exams_id = raw_exams_id.split("|") if raw_exams_id else []
+        exams_id = [id for id in (metadata_row.get("exams_id") or "").split("|") if id]
+        tema = [tema for tema in (metadata_row.get("tema") or "").split("|") if tema]
 
         doc_chunks: list[ChunkRecord] = []
         preamble_length = 0
@@ -483,7 +483,7 @@ class DocumentChunker:
                     "doc_date": metadata_row.get("doc_date"),
                     "source_url": metadata_row.get("source_url"),
                     "exams_id": exams_id,
-                    "tema": metadata_row.get("tema"),
+                    "tema": tema,
                     "tipo_seccion": chunk.tipo_seccion,
                     "sección": chunk.sección,
                     "n_tokens": chunk.n_tokens,

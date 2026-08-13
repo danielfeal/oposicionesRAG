@@ -1,8 +1,14 @@
 import logging
 
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
+from langchain_qdrant import (
+    FastEmbedSparse,
+    QdrantVectorStore,
+    RetrievalMode,
+    SparseEmbeddings,
+)
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
     Distance,
@@ -13,39 +19,66 @@ from qdrant_client.http.models import (
 from qdrant_client.models import FieldCondition, Filter, MatchAny
 from tqdm import tqdm
 
+from rag.config import AppConfig
 from rag.ingest_documents.document_chunker import ChunkRecord
 
 logger = logging.getLogger(__name__)
 
 
+def build_vector_store(
+    client: QdrantClient,
+    config: AppConfig,
+    dense_embeddings: Embeddings,
+    sparse_embeddings: SparseEmbeddings,
+) -> QdrantVectorStore:
+    """Build the hybrid (dense + sparse) vector store used by BOTH ingestion and
+    retrieval.
+
+    Model names, vector names and payload keys must be identical on both sides -
+    a mismatch degrades retrieval silently instead of raising. Do not add e5
+    "query:"/"passage:" prefixes on one side only: the corpus was embedded
+    without them and a one-sided change silently degrades retrieval.
+
+    Args:
+        client: Connected Qdrant client.
+        config: Shared application config; only `config.qdrant` is used.
+        dense_embeddings: Dense embedding model, matching the one used at
+            ingestion time.
+        sparse_embeddings: Sparse embedding model, matching the one used at
+            ingestion time.
+
+    Returns:
+        A `QdrantVectorStore` configured for hybrid retrieval.
+    """
+    qdrant_config = config.qdrant
+    return QdrantVectorStore(
+        client=client,
+        collection_name=qdrant_config.collection_name,
+        embedding=dense_embeddings,
+        sparse_embedding=sparse_embeddings,
+        retrieval_mode=RetrievalMode.HYBRID,
+        vector_name=qdrant_config.dense_vector_name,
+        sparse_vector_name=qdrant_config.sparse_vector_name,
+        content_payload_key=qdrant_config.content_payload_key,
+        metadata_payload_key=qdrant_config.metadata_payload_key,
+    )
+
+
 class QdrantIngestor:
     """Embeds chunk records (dense + sparse) and upserts them into a Qdrant collection."""
 
-    def __init__(
-        self,
-        host: str = "localhost",
-        port: int = 6333,
-        collection_name: str = "oposiciones_rag",
-        dense_model_name: str = "intfloat/multilingual-e5-small",
-        sparse_model_name: str = "Qdrant/bm25",
-        batch_size: int = 100,
-    ) -> None:
-        """Connect to Qdrant and load the embedding models.
+    def __init__(self, config: AppConfig) -> None:
+        """Connect to Qdrant and load the embedding models from shared config.
 
         Args:
-            host: Qdrant host.
-            port: Qdrant port.
-            collection_name: Name of the collection to create or update.
-            dense_model_name: HuggingFace model used for dense embeddings.
-            sparse_model_name: FastEmbed model used for sparse (BM25) embeddings.
-            batch_size: Number of documents uploaded to Qdrant per batch.
+            config: Shared application config.
         """
-        self._collection_name = collection_name
-        self._batch_size = batch_size
+        self._config = config
+        self._qdrant_config = config.qdrant
 
-        self._client = QdrantClient(host=host, port=port)
-        self._dense_embeddings = HuggingFaceEmbeddings(model_name=dense_model_name)
-        self._sparse_embeddings = FastEmbedSparse(model_name=sparse_model_name)
+        self._client = QdrantClient(host=self._qdrant_config.host, port=self._qdrant_config.port)
+        self._dense_embeddings = HuggingFaceEmbeddings(model_name=config.embeddings.dense_model)
+        self._sparse_embeddings = FastEmbedSparse(model_name=config.embeddings.sparse_model)
         self._dense_dim = len(self._dense_embeddings.embed_query("dim probe"))
 
     def run(self, corpus_chunks: list[ChunkRecord], doc_ids: list[str] | None = None) -> None:
@@ -60,16 +93,18 @@ class QdrantIngestor:
                 recreated from `corpus_chunks`.
         """
         self._ensure_collection(doc_ids)
-        vector_store = self._build_vector_store()
+        vector_store = build_vector_store(
+            self._client, self._config, self._dense_embeddings, self._sparse_embeddings
+        )
 
         chunks_to_ingest = [c for c in corpus_chunks if c["doc_id"] in doc_ids] if doc_ids else corpus_chunks
         qdrant_docs = self._to_documents(chunks_to_ingest)
 
-        for i in tqdm(range(0, len(qdrant_docs), self._batch_size), desc="Uploading to Qdrant"):
-            batch = qdrant_docs[i:i + self._batch_size]
+        for i in tqdm(range(0, len(qdrant_docs), self._qdrant_config.batch_size), desc="Uploading to Qdrant"):
+            batch = qdrant_docs[i:i + self._qdrant_config.batch_size]
             vector_store.add_documents(documents=batch)
 
-        logger.info("Ingested %d chunks into '%s'.", len(qdrant_docs), self._collection_name)
+        logger.info("Ingested %d chunks into '%s'.", len(qdrant_docs), self._qdrant_config.collection_name)
 
     def _ensure_collection(self, doc_ids: list[str] | None) -> None:
         """Delete stale points/collection as needed, then (re)create the collection
@@ -78,49 +113,53 @@ class QdrantIngestor:
         Args:
             doc_ids: Scope of the deletion; see `run`.
         """
-        payload_indexes = {"exams_id": "keyword", "tema": "keyword"}
+        collection_name = self._qdrant_config.collection_name
+        payload_indexes = {
+            self._qdrant_config.doc_id_field: "keyword",
+            self._qdrant_config.exams_id_field: "keyword",
+            self._qdrant_config.tema_field: "keyword",
+        }
 
-        if self._client.collection_exists(self._collection_name):
+        if self._client.collection_exists(collection_name):
             if doc_ids:
                 result = self._client.delete(
-                    collection_name=self._collection_name,
-                    points_selector=Filter(must=[FieldCondition(key="doc_id", match=MatchAny(any=doc_ids))]),
+                    collection_name=collection_name,
+                    points_selector=Filter(
+                        must=[
+                            FieldCondition(
+                                key=self._qdrant_config.doc_id_field,
+                                match=MatchAny(any=doc_ids),
+                            )
+                        ]
+                    ),
                 )
                 logger.info(
                     "Deleted points for %d doc_ids from '%s': %s",
-                    len(doc_ids), self._collection_name, result.status,
+                    len(doc_ids), collection_name, result.status,
                 )
             else:
-                self._client.delete_collection(self._collection_name)
-                logger.info("Dropped collection '%s'.", self._collection_name)
+                self._client.delete_collection(collection_name)
+                logger.info("Dropped collection '%s'.", collection_name)
 
-        if not self._client.collection_exists(self._collection_name):
+        if not self._client.collection_exists(collection_name):
             self._client.create_collection(
-                collection_name=self._collection_name,
+                collection_name=collection_name,
                 vectors_config={
-                    "dense": VectorParams(size=self._dense_dim, distance=Distance.COSINE),
+                    self._qdrant_config.dense_vector_name: VectorParams(
+                        size=self._dense_dim, distance=Distance.COSINE
+                    ),
                 },
                 sparse_vectors_config={
-                    "sparse": SparseVectorParams(index=SparseIndexParams(on_disk=False)),
+                    self._qdrant_config.sparse_vector_name: SparseVectorParams(
+                        index=SparseIndexParams(on_disk=False)
+                    ),
                 },
             )
             for field, schema in payload_indexes.items():
                 self._client.create_payload_index(
-                    collection_name=self._collection_name, field_name=field, field_schema=schema
+                    collection_name=collection_name, field_name=field, field_schema=schema
                 )
-            logger.info("Created collection '%s'.", self._collection_name)
-
-    def _build_vector_store(self) -> QdrantVectorStore:
-        """Build the hybrid (dense + sparse) vector store for the collection."""
-        return QdrantVectorStore(
-            client=self._client,
-            collection_name=self._collection_name,
-            embedding=self._dense_embeddings,
-            sparse_embedding=self._sparse_embeddings,
-            retrieval_mode=RetrievalMode.HYBRID,
-            vector_name="dense",
-            sparse_vector_name="sparse",
-        )
+            logger.info("Created collection '%s'.", collection_name)
 
     def _to_documents(self, chunks: list[ChunkRecord]) -> list[Document]:
         """Convert chunk records into langchain `Document`s for ingestion."""

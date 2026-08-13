@@ -7,15 +7,12 @@ import logging
 
 import pandas as pd
 
+from rag.config import AppConfig
 from rag.ingest_documents.document_chunker import DocumentChunker
 from rag.ingest_documents.document_reader import DocumentReader
 from rag.ingest_documents.qdrant_ingestor import QdrantIngestor
 
-RAW_DIR = "./corpus/raw"
-EXTRACTED_DIR = "./corpus/extracted_text"
 FROM_PDF = False
-METADATA_CSV = "./corpus/metadata.csv"
-REVIEW_JSON = "./documentation/chunking_review.json"
 
 logger = logging.getLogger(__name__)
 
@@ -24,24 +21,29 @@ def main() -> None:
     """Run the full pipeline: read -> chunk -> write review -> ingest."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
+    config = AppConfig()
+
     # Read docs and metadata
-    source_dir = RAW_DIR if FROM_PDF else EXTRACTED_DIR
-    export_dir = EXTRACTED_DIR if FROM_PDF else None
+    source_dir = config.raw_dir if FROM_PDF else config.extracted_dir
+    export_dir = config.extracted_dir if FROM_PDF else None
 
     docs = DocumentReader().run(source_dir, from_pdf=FROM_PDF, export_dir=export_dir)
     logger.info("Read %d documents from '%s'.", len(docs), source_dir)
 
-    metadata_df = pd.read_csv(METADATA_CSV, dtype=str, keep_default_na=False)
+    metadata_df = pd.read_csv(config.metadata_csv, dtype=str, keep_default_na=False)
 
     # Process the corpus: obtain chunks and review
-    corpus_chunks, chunking_review = DocumentChunker().run(docs, metadata_df)
+    chunker = DocumentChunker(
+        model_name=config.embeddings.dense_model, overlap_tokens=config.chunk_overlap_tokens
+    )
+    corpus_chunks, chunking_review = chunker.run(docs, metadata_df)
     logger.info("Segmented %d documents into %d chunks.", len(chunking_review), len(corpus_chunks))
 
-    with open(REVIEW_JSON, "w", encoding="utf-8") as f:
+    with open(config.chunking_review_json, "w", encoding="utf-8") as f:
         json.dump(chunking_review, f, ensure_ascii=False, indent=2)
 
     # Ingest in Qdrant
-    QdrantIngestor().run(corpus_chunks)
+    QdrantIngestor(config).run(corpus_chunks)
 
 
 if __name__ == "__main__":

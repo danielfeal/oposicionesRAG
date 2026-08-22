@@ -19,9 +19,11 @@ GENERATION_SYSTEM_PROMPT = (
     "Las respuestas tienden a estar contenidas de forma literal en una única fuente. "
     "Prioriza citar una única fuente por afirmación y responder con el contenido de la "
     "fuente de forma textual (no es necesario usar comillas). Cita varias fuentes sólo "
-    "si aportan información relevante, que contradice o matiza la fuente principal. Sé "
-    "conciso: ve directo a la respuesta, sin introducciones ni resúmenes finales. No "
-    "sacrifiques matices legales relevantes por acortar.\n\n"
+    "si aportan información relevante, que contradice o matiza la fuente principal. Si "
+    "dos bloques tratan el mismo punto y su contenido difiere, prioriza el bloque con "
+    "fecha más reciente (indicada entre paréntesis junto al encabezado) sobre el más "
+    "antiguo. Sé conciso: ve directo a la respuesta, sin introducciones ni resúmenes "
+    "finales. No sacrifiques matices legales relevantes por acortar.\n\n"
     "Ejemplo de respuestas buenas:\n"
     "- 'El plazo de alegaciones es de diez días hábiles [1], salvo en el procedimiento "
     "sancionador simplificado, donde se reduce a cinco [2].'\n"
@@ -51,16 +53,18 @@ class BuiltContext:
 def _render(chunks: Sequence[RetrievedChunk]) -> tuple[str, list[SourceRef]]:
     """Render numbered context blocks and the matching source list.
 
-    The LLM only ever sees the index and the passage text - never a URL,
-    document name or date - so citations are resolved deterministically in
-    code from `sources`, immune to the model mangling or inventing a URL.
+    Each heading shows doc name, section and date, so the model can prefer
+    the most recent block when two disagree - but it never sees a URL, so
+    citations are resolved deterministically in code from `sources`, immune
+    to the model mangling or inventing one.
     """
     lines: list[str] = []
     sources: list[SourceRef] = []
     for i, chunk in enumerate(chunks, start=1):
         meta = chunk.metadata
         heading = " — ".join(part for part in (meta.doc_name, meta.seccion) if part)
-        lines.append(f"[{i}] {heading}\n{chunk.content}")
+        date_suffix = f" (fecha: {meta.doc_date})" if meta.doc_date else ""
+        lines.append(f"[{i}] {heading}{date_suffix}\n{chunk.content}")
         sources.append(
             SourceRef(
                 index=i,

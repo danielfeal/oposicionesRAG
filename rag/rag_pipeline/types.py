@@ -27,21 +27,19 @@ class RelevanceVerdict(str, Enum):
 
 STATUS_MESSAGES: dict[PipelineStatus, str] = {
     PipelineStatus.OFF_TOPIC: (
-        "Solo puedo responder preguntas sobre la normativa de las oposiciones "
-        "seleccionadas. Prueba con una pregunta relacionada con el temario."
+        "Mi objetivo es responder preguntas relacionadas con exámenes de oposición. "
+        "Parece que tu pregunta no es sobre este tema, prueba a formularla de otra manera."
     ),
     PipelineStatus.NO_CONTEXT: (
-        "No he encontrado normativa relevante para esa pregunta en el temario "
-        "seleccionado. Intenta reformularla o revisa que el tema/oposición sea "
-        "el correcto."
+        "No he encontrado normativa relevante para responder esa pregunta en el temario "
+        "seleccionado. Intenta reformularla y comprueba que el tema/oposición seleccionado"
+        " sea el correcto."
     ),
     PipelineStatus.RETRIEVAL_ERROR: (
-        "Ha ocurrido un problema al buscar en el temario. Inténtalo de nuevo en "
-        "unos segundos."
+        "Ha ocurrido algún problema. Inténtalo de nuevo en unos segundos."
     ),
     PipelineStatus.GENERATION_ERROR: (
-        "Ha ocurrido un problema al generar la respuesta. Inténtalo de nuevo en "
-        "unos segundos."
+        "Ha ocurrido algún problema. Inténtalo de nuevo en unos segundos."
     ),
 }
 
@@ -110,11 +108,7 @@ class SourceRef:
 
 @dataclass
 class PipelineTrace:
-    """Full record of one pipeline run: inputs, intermediate results, timings.
-
-    Consumed by the SQLite trace store and, later, by RAGAS/LLM-as-judge
-    evaluation.
-    """
+    """Full record of one pipeline run: inputs, intermediate results, timings."""
 
     session_id: str
     timestamp_utc: str

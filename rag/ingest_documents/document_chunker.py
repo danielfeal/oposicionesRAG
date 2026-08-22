@@ -130,17 +130,10 @@ class DocumentChunker:
         and a quoted block whose closing » was dropped (annulled content) would
         otherwise swallow the rest of the document.
         """
-        # if ARTICULO_ORDINAL.match(match.group(0).strip()):
-        #     return False
 
         last_open_quote = text.rfind("«", 0, match.start())
         last_close_quote = text.rfind("»", 0, match.start())
-        if last_open_quote > last_close_quote:
-            return True
-
-        # last_period = text.rfind(".", 0, match.start())
-        # fragment = text[last_period + 1:match.start()].replace("\n", " ").strip()
-        # return bool(CITATION_LEADIN.search(fragment))
+        return last_open_quote > last_close_quote
 
     def _numeric_sequence(self, matches: list[re.Match]) -> list[re.Match]:
         """Return the subset of bare-number matches forming a real enumeration (1, 2,
@@ -453,9 +446,7 @@ class DocumentChunker:
         text: str,
         metadata_row: dict,
     ) -> tuple[list[ChunkRecord], dict]:
-        """Segment and split a single document into chunk records, plus a review
-        summary.
-        """
+        """Segment and split a single document into chunk records, plus a review summary."""
 
         chunks, segmentation_level = self._segment_document(doc_id, text)
 

@@ -57,11 +57,6 @@ class SqliteTraceStore:
     """
 
     def __init__(self, db_path: str) -> None:
-        """
-        Args:
-            db_path: Path to the SQLite file. Parent directories are created
-                if missing.
-        """
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
         self._conn = sqlite3.connect(db_path, check_same_thread=False)
@@ -70,9 +65,7 @@ class SqliteTraceStore:
             self._conn.commit()
 
     def log(self, trace: PipelineTrace) -> None:
-        """Serialize and insert `trace`. Never raises: logging must not break
-        an answer.
-        """
+        """Serialize and insert `trace`. Never raises: logging must not break an answer."""
         try:
             with self._lock:
                 self._conn.execute(

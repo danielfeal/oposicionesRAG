@@ -38,17 +38,6 @@ def build_vector_store(
     a mismatch degrades retrieval silently instead of raising. Do not add e5
     "query:"/"passage:" prefixes on one side only: the corpus was embedded
     without them and a one-sided change silently degrades retrieval.
-
-    Args:
-        client: Connected Qdrant client.
-        config: Shared application config; only `config.qdrant` is used.
-        dense_embeddings: Dense embedding model, matching the one used at
-            ingestion time.
-        sparse_embeddings: Sparse embedding model, matching the one used at
-            ingestion time.
-
-    Returns:
-        A `QdrantVectorStore` configured for hybrid retrieval.
     """
     qdrant_config = config.qdrant
     return QdrantVectorStore(
@@ -59,8 +48,6 @@ def build_vector_store(
         retrieval_mode=RetrievalMode.HYBRID,
         vector_name=qdrant_config.dense_vector_name,
         sparse_vector_name=qdrant_config.sparse_vector_name,
-        content_payload_key=qdrant_config.content_payload_key,
-        metadata_payload_key=qdrant_config.metadata_payload_key,
     )
 
 
@@ -68,11 +55,7 @@ class QdrantIngestor:
     """Embeds chunk records (dense + sparse) and upserts them into a Qdrant collection."""
 
     def __init__(self, config: AppConfig) -> None:
-        """Connect to Qdrant and load the embedding models from shared config.
-
-        Args:
-            config: Shared application config.
-        """
+        """Connect to Qdrant and load the embedding models from shared config."""
         self._config = config
         self._qdrant_config = config.qdrant
 
@@ -83,15 +66,7 @@ class QdrantIngestor:
 
     def run(self, corpus_chunks: list[ChunkRecord], doc_ids: list[str] | None = None) -> None:
         """Create or update the Qdrant collection, optionally scoped to a subset of
-        doc_ids.
-
-        Args:
-            corpus_chunks: Chunk records to ingest.
-            doc_ids: If given, only re-ingest chunks whose `doc_id` is in this list -
-                existing points for those doc_ids are deleted first and the rest of
-                the collection is left untouched. If omitted, the whole collection is
-                recreated from `corpus_chunks`.
-        """
+        doc_ids."""
         self._ensure_collection(doc_ids)
         vector_store = build_vector_store(
             self._client, self._config, self._dense_embeddings, self._sparse_embeddings
@@ -109,9 +84,6 @@ class QdrantIngestor:
     def _ensure_collection(self, doc_ids: list[str] | None) -> None:
         """Delete stale points/collection as needed, then (re)create the collection
         and its payload indexes if it doesn't already exist.
-
-        Args:
-            doc_ids: Scope of the deletion; see `run`.
         """
         collection_name = self._qdrant_config.collection_name
         payload_indexes = {

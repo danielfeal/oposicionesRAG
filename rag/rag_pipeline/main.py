@@ -1,5 +1,4 @@
-"""End-to-end query pipeline: relevance check -> retrieve -> rerank -> select
-context -> generate. Mirrors rag/ingest_documents/main.py.
+"""End-to-end query pipeline: relevance check -> retrieve -> rerank -> render context -> generate.
 
 CLI usage:
     python -m rag.rag_pipeline.main --exam A1 --query "..."
@@ -22,8 +21,9 @@ from qdrant_client import QdrantClient
 
 from rag.config import AppConfig
 from rag.ingest_documents.qdrant_ingestor import build_vector_store
-from rag.rag_pipeline.generator import AnswerGenerator, select_context
-from rag.rag_pipeline.llm import OllamaClient, RelevanceChecker
+from rag.rag_pipeline.generator import AnswerGenerator
+from rag.rag_pipeline.llm_utils import OllamaClient
+from rag.rag_pipeline.relevance import RelevanceChecker
 from rag.rag_pipeline.reranker import CrossEncoderReranker
 from rag.rag_pipeline.retriever import HybridRetriever
 from rag.rag_pipeline.trace_store import NullTraceStore, SqliteTraceStore
@@ -52,23 +52,12 @@ class Components:
 def build_components(config: AppConfig | None = None) -> Components:
     """Assemble the production components from configuration.
 
-    Constructs two `OllamaClient`s - a small one for the relevance checker
-    (`config.llm.relevance_model`) and a larger one for the answer generator
-    (`config.llm.model`), since relevance classification is a much easier
-    task and doesn't need the bigger model - plus one Qdrant client, the
-    shared hybrid vector store (via the same builder ingestion uses, so
-    model/vector/payload names cannot drift), the CPU reranker and the
-    SQLite trace store.
+    Constructs two `OllamaClient`s plus one Qdrant client, the 
+    shared hybrid vector store, the CPU reranker and the SQLite trace store.
 
     Both models are warmed up here (forced into memory) so the first real
     query doesn't pay for a cold load; `config.llm.keep_alive` then keeps
     them resident between queries.
-
-    Args:
-        config: Application config; loaded with defaults when omitted.
-
-    Returns:
-        Ready-to-use `Components`.
     """
     config = config or AppConfig()
 
@@ -96,18 +85,8 @@ def build_components(config: AppConfig | None = None) -> Components:
 def new_trace(
     config: AppConfig, exam: str, temas: list[str], query: str, session_id: str | None = None
 ) -> PipelineTrace:
-    """Build the trace shell `answer()` will mutate in place.
+    """Build the trace."""
 
-    Args:
-        config: Application config, used for the `models` field.
-        exam: Exam id (A1 | A2 | C1 | C2).
-        temas: Optional tema filter; meaningful only for exam A1.
-        query: The user's question.
-        session_id: Caller-supplied session id; generated if omitted.
-
-    Returns:
-        A fresh trace with status OK, ready to be passed into `answer()`.
-    """
     return PipelineTrace(
         session_id=session_id or uuid4().hex,
         timestamp_utc=datetime.now(UTC).isoformat(),
@@ -142,14 +121,6 @@ async def answer(
     Never lets an exception escape: failures become a status on `trace`, and
     the trace is always logged via `components.trace_store` before this
     generator ends.
-
-    Args:
-        components: Built components (see `build_components`).
-        trace: Trace shell from `new_trace()`, mutated as stages complete.
-        history: Prior conversation turns as Ollama-style message dicts.
-
-    Yields:
-        Successive fragments of the generated answer.
     """
     history = list(history or [])
     start = time.perf_counter()
@@ -186,18 +157,12 @@ async def answer(
             return
 
         t0 = time.perf_counter()
-        try:
-            trace.reranked = await asyncio.to_thread(
-                components.reranker.rerank, query, trace.retrieved
-            )
-        except Exception:
-            logger.exception(
-                "Reranking failed for session '%s'; using retrieval order.", trace.session_id
-            )
-            trace.reranked = list(trace.retrieved)
+        trace.reranked, filtered, n_tokens = await asyncio.to_thread(
+            components.reranker.rerank, query, trace.retrieved
+        )
         trace.durations_ms["rerank"] = (time.perf_counter() - t0) * 1000
 
-        built = select_context(trace.reranked, components.config.retrieval)
+        built = components.generator.render_context(filtered, n_tokens)
         trace.final_chunks = built.chunks
         trace.sources = built.sources
         if not built.chunks:

@@ -18,14 +18,10 @@ class QdrantConfig:
     collection_name: str = "oposiciones_rag"
     dense_vector_name: str = "dense"
     sparse_vector_name: str = "sparse"
-    content_payload_key: str = "page_content"
-    metadata_payload_key: str = "metadata"
     batch_size: int = 100
 
     # Dotted payload paths for the metadata fields we filter/index on. Nested
-    # under metadata_payload_key ("metadata.doc_id", etc.) because that's how
-    # langchain_qdrant stores document metadata. Kept in sync with
-    # metadata_payload_key by hand - it never changes in practice.
+    # under QdrantVectorStore's own default metadata_payload_key ("metadata").
     doc_id_field: str = "metadata.doc_id"
     exams_id_field: str = "metadata.exams_id"
     tema_field: str = "metadata.tema"
@@ -33,12 +29,7 @@ class QdrantConfig:
 
 @dataclass(frozen=True)
 class EmbeddingsConfig:
-    """Embedding models used for hybrid (dense + sparse) search.
-
-    e5 "query:"/"passage:" prefixes are deliberately NOT used: the corpus was
-    embedded without them, and enabling this on one side only silently breaks
-    retrieval.
-    """
+    """Embedding models used for hybrid (dense + sparse) search."""
 
     dense_model: str = "intfloat/multilingual-e5-small"
     sparse_model: str = "Qdrant/bm25"
@@ -56,7 +47,7 @@ class RetrievalConfig:
     max_chunks: int = 4
     max_context_tokens: int = 3000
     chars_per_token: float = 3.6  # Spanish heuristic; no local tokenizer available
-    min_relevance_prob: float = 0.15  # NO_CONTEXT gate on sigmoid(rerank logit)
+    min_relevance_prob: float = 0.15  # NO_CONTEXT gate on sigmoid
     keep_ratio: float = 0.50  # drop chunks scoring below keep_ratio * top prob
     max_history_turns: int = 6
 
@@ -66,8 +57,7 @@ class LlmConfig:
     """Ollama connection and default generation parameters.
 
     Two model tags: `model` answers the question, `relevance_model` only
-    classifies on/off-topic (a much easier task) - a smaller, faster model is
-    enough for it and cuts the relevance-check stage's latency.
+    classifies on/off-topic (a much easier task, therefore a smaller, faster model)
     """
 
     base_url: str = os.getenv("RAG_LLM_BASE_URL", "http://localhost:11434")
@@ -75,11 +65,7 @@ class LlmConfig:
     relevance_model: str = "qwen3.5:0.8b"
     think: bool = False  # qwen3(.5) emits <think> blocks otherwise -> huge CPU cost
     timeout_s: int = 180
-    # How long Ollama keeps the model resident after the last request. Longer
-    # than Ollama's 5-minute default so a pause between chat turns doesn't
-    # force a multi-second reload; not indefinite, so idle RAM is still
-    # released eventually. Components are also warmed up at startup.
-    keep_alive: str = "60m"
+    keep_alive: str = "60m"  # How long Ollama keeps the model resident after the last request.
     temperature: float = 0.2
     num_predict: int = 800
     num_ctx: int = 8192

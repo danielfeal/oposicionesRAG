@@ -15,18 +15,7 @@ class DocumentReader:
         from_pdf: bool = False,
         export_dir: str | None = None,
     ) -> dict[str, str]:
-        """Read every document in `source_dir` into a `{doc_id: text}` mapping.
-
-        Args:
-            source_dir: Folder containing either .pdf or .txt files.
-            from_pdf: Read .pdf files and extract their text if True; read cached
-                .txt files otherwise.
-            export_dir: If given, write each document's text to `export_dir` as
-                `<doc_id>.txt` after reading.
-
-        Returns:
-            Mapping of doc_id (file stem) to extracted text.
-        """
+        """Read every document in `source_dir` into a `{doc_id: text}` mapping."""
         docs = self._read_pdfs(source_dir) if from_pdf else self._read_txts(source_dir)
         if export_dir:
             self._export_extracted_texts(docs, export_dir)

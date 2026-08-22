@@ -1,16 +1,6 @@
-"""Chainlit UI over the query-side RAG pipeline.
+"""Chainlit UI over the RAG pipeline.
 
-A thin consumer of `rag.rag_pipeline.main`: exam and tema are both chosen
-through the chat settings panel (gear icon next to the composer), and
-`answer()` is streamed into a chat message. No pipeline logic lives here.
-
-The pipeline components are built in the background at startup rather than
-awaited, so the welcome message is reachable immediately and the ~30s of
-model loading overlaps with the user reading it.
-
-Run from the repository root, so the relative `AppConfig.trace_db` path
-resolves against it:
-
+CLI usage (run from repo root):
     chainlit run app.py -w
 """
 
@@ -27,7 +17,6 @@ from rag.rag_pipeline.types import PipelineStatus, SourceRef
 
 logger = logging.getLogger(__name__)
 
-# Label -> value, both shown in the sidebar Select.
 EXAM_ITEMS: dict[str, str] = {
     "A1 — Cuerpo Superior de Administradores Civiles del Estado": "A1",
     "A2 — Gestión de la Administración Civil del Estado": "A2",
@@ -36,19 +25,8 @@ EXAM_ITEMS: dict[str, str] = {
 }
 DEFAULT_EXAM = "A1"
 
-# Only A1 documents carry tema metadata, so the filter is offered only there.
-# `HybridRetriever` would silently drop it for the other exams anyway.
-TEMA_EXAM = "A1"
-
-# Label -> value. Mirrors documentation/guia_temario_oposiciones.md; there is
-# no tema enum in the codebase (metadata.csv stores them as a pipe-separated
-# string), so the valid set is hardcoded here. Single-select: at most one
-# tema narrows the search, or the sentinel searches the whole temario.
-# Radix's Select.Item rejects an empty-string value (it's reserved internally
-# for "no selection"), so the sentinel must be non-empty.
-TEMA_ALL = "TODOS"  # sentinel: no tema filter
 TEMA_ITEMS: dict[str, str] = {
-    "Todos los temas": TEMA_ALL,
+    "Todos los temas": "TODOS",
     "I — Materias comunes": "I",
     "II — Materias jurídicas": "II",
     "III — Materias sociales": "III",
@@ -57,20 +35,17 @@ TEMA_ITEMS: dict[str, str] = {
 }
 
 WELCOME_MESSAGE = (
-    "**Bienvenido, soy un asistente basado en IA para estudiantes de oposiciones**\n\n"
+    "**Bienvenido! Soy un asistente basado en IA para estudiantes de oposiciones**\n\n"
     "Haz preguntas y obtendrás una respuesta junto a su fuente oficial en el BOE.\n\n"
     "Antes de empezar, abre el icono de ajustes ⚙️ junto al cuadro de mensaje "
     "y selecciona tu examen de oposición. En caso de ser el examen A1, podrás seleccionar "
     "también el tema. Las respuestas se basarán unicamente en el temario oficial para el "
-    "examen y tema seleccionados."
+    "examen y tema seleccionados.\n\n"
+    "Lee más información pulsando en 'Readme'."
 )
-START_LABEL = "OK"
 LOADING_MESSAGE = "⏳ Cargando los modelos, esto tarda unos segundos..."
-READY_MESSAGE = "Ya puedes hacer preguntas!"
+READY_MESSAGE = "✅ Ya puedes hacer preguntas!"
 BUILD_ERROR_MESSAGE = "Ha habido un error, no se han podido cargar los modelos."
-# Shown only if the pipeline both streams nothing and sets no message. No
-# current code path does that; this exists so the UI can never render an
-# empty bubble.
 FALLBACK_MESSAGE = "No he podido generar una respuesta. Inténtalo de nuevo."
 
 _build_task: "asyncio.Task[Components] | None" = None
@@ -78,14 +53,7 @@ _build_task: "asyncio.Task[Components] | None" = None
 
 @cl.on_app_startup
 async def startup() -> None:
-    """Start building the pipeline components without blocking the server.
-
-    Deliberately not awaited: awaiting here would hold the port closed for the
-    whole model load. The task is created once per process, so the global
-    `torch.set_num_threads()` call inside `CrossEncoderReranker` still happens
-    exactly once, and no lock is needed - awaiting the same task from several
-    sessions returns the one cached result.
-    """
+    """Start building the pipeline components without blocking the server."""
     global _build_task
     _build_task = asyncio.create_task(asyncio.to_thread(build_components, AppConfig()))
 
@@ -95,8 +63,7 @@ async def shutdown() -> None:
     """Close the trace store's SQLite handle, if one was ever opened.
 
     Cancels the build instead if it is still running, and stays silent when it
-    failed - shutdown must not raise on top of an earlier error. The `hasattr`
-    guard is needed because `NullTraceStore` has no `close`.
+    failed - shutdown must not raise on top of an earlier error.
     """
     if _build_task is None:
         return
@@ -116,19 +83,13 @@ def _settings_widgets(exam: str) -> list[InputWidget]:
     The tema `Select` is included only for A1, so switching to any other exam
     removes it instead of leaving a filter that would be silently ignored by
     the retriever.
-
-    Args:
-        exam: The exam currently selected.
-
-    Returns:
-        Widgets to pass to `cl.ChatSettings`.
     """
     widgets: list[InputWidget] = [
         Select(id="exam", label="Oposición", items=EXAM_ITEMS, initial_value=exam)
     ]
-    if exam == TEMA_EXAM:
+    if exam == "A1":
         widgets.append(
-            Select(id="tema", label="Tema", items=TEMA_ITEMS, initial_value=TEMA_ALL)
+            Select(id="tema", label="Tema", items=TEMA_ITEMS, initial_value="TODOS")
         )
     return widgets
 
@@ -144,19 +105,14 @@ async def start() -> None:
 
     welcome = cl.Message(
         content=WELCOME_MESSAGE,
-        actions=[cl.Action(name="start", payload={}, label=START_LABEL)],
+        actions=[cl.Action(name="start", payload={}, label="OK")],
     )
     await welcome.send()
 
 
 @cl.action_callback("start")
 async def on_start(action: cl.Action) -> None:
-    """Report readiness when clicked: instant if already built, else wait.
-
-    The button does not gate the chat input - Chainlit has no API to disable
-    it - so `on_message` has its own fallback for a question typed before this
-    is clicked. This only makes the already-ready/loading state visible.
-    """
+    """Report readiness when clicked: instant if already built, else wait."""
     del action  # payload is empty, nothing to read
     assert _build_task is not None  # set by the startup hook
 
@@ -181,16 +137,14 @@ async def settings_update(settings: dict[str, Any]) -> None:
     """Persist the exam/tema selection; re-render the panel on exam change.
 
     Switching exam clears `history`, since a different exam targets a
-    different corpus and carrying old context across it would be wrong, not
-    helpful. The tema widget is added or removed by resending
-    `ChatSettings`, which only pushes a widget-definition event to the client
-    - the event that re-enters this handler is the separate, user-only
-    "settings submitted" event, so this cannot loop.
+    different corpus and carrying old context across it would be wrong.
+    
+    The tema widget is added or removed by resending `ChatSettings`.
     """
     new_exam = settings.get("exam") or DEFAULT_EXAM
     old_exam = cl.user_session.get("exam", DEFAULT_EXAM)
-    tema = settings.get("tema") or TEMA_ALL
-    new_temas = [tema] if new_exam == TEMA_EXAM and tema != TEMA_ALL else []
+    tema = settings.get("tema") or "TODOS"
+    new_temas = [tema] if new_exam == "A1" and tema != "TODOS" else []
 
     cl.user_session.set("exam", new_exam)
     cl.user_session.set("temas", new_temas)
@@ -205,10 +159,6 @@ async def _await_components() -> Components:
 
     Fallback for a question that arrives before the Start button was clicked
     (or before its wait resolved).
-
-    Raises:
-        Exception: Whatever `build_components` raised. The same exception is
-            re-raised on every call, since the task caches it.
     """
     assert _build_task is not None  # set by the startup hook
     if _build_task.done():
@@ -229,9 +179,6 @@ async def on_message(message: cl.Message) -> None:
     `answer()` never raises: it reports failures as a status on the trace. It
     also yields nothing at all for OFF_TOPIC, NO_CONTEXT and RETRIEVAL_ERROR,
     so whether any token arrived decides how the reply is assembled.
-
-    Args:
-        message: The incoming user message.
     """
     try:
         components = await _await_components()
@@ -266,8 +213,7 @@ async def on_message(message: cl.Message) -> None:
             reply.content += _render_sources(trace.sources)
     await reply.update()
 
-    # Only real answers become history - persisting a status message would
-    # feed the Spanish error text back into the next generation as context.
+    # Only real answers become history.
     if trace.answer:
         history.append({"role": "user", "content": message.content})
         history.append({"role": "assistant", "content": trace.answer})
@@ -280,19 +226,11 @@ def _render_sources(sources: list[SourceRef]) -> str:
     The model only ever sees bracketed indices, never document names or URLs,
     so resolving them is the UI's job. Headings use the same
     `doc_name — seccion` convention as the context blocks the model was shown.
-
-    Args:
-        sources: Citation refs from the completed trace, in index order.
-
-    Returns:
-        A markdown block to append to the answer.
     """
     lines = ["\n\n---\n**Fuentes**\n"]
     for source in sources:
         heading = " — ".join(p for p in (source.doc_name, source.seccion) if p)
         label = heading or source.doc_id
-        # Index stays outside the link: nesting it as [[1] label](url) relies
-        # on balanced-bracket parsing that not every markdown renderer gets right.
         linked = f"[{label}]({source.source_url})" if source.source_url else label
         lines.append(f"- **[{source.index}]** {linked}")
     return "\n".join(lines)

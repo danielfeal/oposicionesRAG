@@ -1,0 +1,7 @@
+# Only rag/ and scripts/ are copied wholesale (see Dockerfile), so
+# only files inside those directories are dockerignored.
+
+**/__pycache__
+
+# .env is dockerignored as an extra security measure
+.env

@@ -1,0 +1,76 @@
+# Single-VM deployment: Qdrant + Ollama + the Chainlit app, all on one
+# internal bridge network. Nothing here is published beyond 127.0.0.1 - a
+# reverse proxy (Caddy, added separately) is what actually faces the
+# internet and terminates TLS.
+#
+# Bring up: docker compose up -d --build
+# Data persists under ./data/ (qdrant, ollama models) and ./documentation/
+# (trace_db, same path/format the local CLI and Chainlit already use).
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/qdrant:/qdrant/storage
+    networks:
+      - internal
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/ollama:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - internal
+
+  # One-shot: pulls both models into the `ollama` service's volume, then
+  # exits. `app` waits on this completing successfully before starting, so
+  # the first real query never races a still-downloading model.
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama pull qwen3.5:2b && ollama pull qwen3.5:0.8b"
+    networks:
+      - internal
+    restart: "no"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      qdrant:
+        condition: service_started
+      ollama-pull:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      # Compose service names resolve over the `internal` network - these
+      # override rag/config.py's localhost defaults, meant for running the
+      # pipeline outside Docker.
+      - RAG_QDRANT_HOST=qdrant
+      - RAG_QDRANT_PORT=6333
+      - RAG_LLM_BASE_URL=http://ollama:11434
+      - RAG_TRACE_DB=./documentation/interactions.db
+    volumes:
+      - ./documentation:/app/documentation
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge

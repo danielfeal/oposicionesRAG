@@ -5,7 +5,9 @@ CLI usage (run from repo root):
 """
 
 import asyncio
+import hmac
 import logging
+import os
 from typing import Any
 
 import chainlit as cl
@@ -14,6 +16,7 @@ from chainlit.input_widget import InputWidget, Select
 from rag.config import AppConfig
 from rag.rag_pipeline.main import Components, answer, build_components, new_trace
 from rag.rag_pipeline.types import PipelineStatus, SourceRef
+from scripts.hash_password import hash_password
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +52,31 @@ BUILD_ERROR_MESSAGE = "Ha habido un error, no se han podido cargar los modelos."
 FALLBACK_MESSAGE = "No he podido generar una respuesta. Inténtalo de nuevo."
 
 _build_task: "asyncio.Task[Components] | None" = None
+
+
+def _load_users() -> dict[str, tuple[str, str]]:
+    """Parse `CHAINLIT_USERS` ("user:salt_hex:hash_hex|user2:...") into a lookup."""
+    users: dict[str, tuple[str, str]] = {}
+    for record in filter(None, os.environ.get("CHAINLIT_USERS", "").split("|")):
+        username, salt_hex, hash_hex = record.split(":")
+        users[username] = (salt_hex, hash_hex)
+    return users
+
+
+_USERS = _load_users()
+
+
+@cl.password_auth_callback
+async def auth_callback(username: str, password: str) -> cl.User | None:
+    """Authenticate against `CHAINLIT_USERS` (PBKDF2-SHA256, constant-time compare)."""
+    credentials = _USERS.get(username)
+    if credentials is None:
+        return None
+    salt_hex, hash_hex = credentials
+    candidate = hash_password(password, bytes.fromhex(salt_hex))
+    if not hmac.compare_digest(candidate, bytes.fromhex(hash_hex)):
+        return None
+    return cl.User(identifier=username)
 
 
 @cl.on_app_startup

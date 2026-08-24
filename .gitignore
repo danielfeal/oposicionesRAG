@@ -1,6 +1,9 @@
 # Virtual environment
 /.venv
 
+# Secrets
+/.env
+
 # Python cache
 **/__pycache__/
 
@@ -17,8 +20,10 @@
 /qdrant_storage
 
 #Chainlit
-# config.toml and chainlit.md are deliberately NOT ignored
-/.chainlit/translations/
+# config.toml and chainlit.md are deliberately NOT ignored.
+# language is forced to "es" (config.toml), so only es.json needs to ship
+/.chainlit/translations/*
+!/.chainlit/translations/es.json
 /.files/
 
 # Documentation

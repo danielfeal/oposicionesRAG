@@ -1,0 +1,117 @@
+﻿id,exam,question_type,question,ground_truth_answer,ground_truth_ref,ground_truth_doc_id
+A2_001,A2,with_ref,"De acuerdo con el artículo 56.1 de la Constitución Española de 1978, ¿qué arbitra y modera el Rey?",El funcionamiento regular de las instituciones.,Artículo 56.,doc015
+A2_002,A2,with_ref,"Según la Ley 22/2009, de 18 de diciembre, por la que se regula el sistema de financiación de las Comunidades Autónomas de régimen común y Ciudades con Estatuto de Autonomía y se modifican determinadas normas tributarias, ¿qué fondo opera como recurso de cierre del sistema?",El Fondo de Suficiencia Global.,preambulo,doc101
+A2_003,A2,with_ref,"¿Cómo define el acoso discriminatorio La Ley 4/2023, de 28 de febrero, para la igualdad real y efectiva de las personas trans y para la garantía de los derechos de las personas LGTBI?","Cualquier conducta realizada por razón de alguna de las causas de discriminación previstas en esta ley, con el objetivo o la consecuencia de atentar contra la dignidad de una persona o grupo en que se integra y de crear un entorno intimidatorio, hostil, degradante, humillante u ofensivo",Artículo 3.,doc236
+A2_004,A2,with_ref,"Según el artículo 133 de la Ley 39/2015, de 1 de octubre, del Procedimiento Administrativo Común de las Administraciones Públicas, ¿cuándo podrá prescindirse del trámite de consulta pública?",Cuando concurran razones graves de interés público que lo justifiquen.,Artículo 133.,doc095
+A2_005,A2,with_ref,"Según el artículo 36 de la Ley 9/2017, de 8 de noviembre, de Contratos del Sector Público, ¿cómo se perfeccionan los contratos basados en un acuerdo marco?",Con su adjudicación.,Artículo 36.,doc043
+A2_006,A2,with_ref,"Según el artículo veintidós de la Ley de 16 de diciembre de 1954 sobre expropiación forzosa, ¿qué recurso cabrá interponer contra el acuerdo de necesidad de ocupación?",Recurso de alzada ante el ministerio correspondiente.,Artículo veintidós.,doc156
+A2_007,A2,with_ref,"De acuerdo con el artículo 64 del texto refundido de la Ley del Estatuto Básico del Empleado Público, aprobado mediante Real Decreto Legislativo 5/2015, de 30 de octubre, ¿es la renuncia una forma de pérdida de la condición de funcionario?","Sí, manifestada por escrito y aceptada expresamente por la Administración.",Artículo 64.,doc220
+A2_008,A2,with_ref,"De acuerdo con el Real Decreto 2271/2004, de 3 de diciembre, por el que se regula el acceso al empleo público y la provisión de puestos de trabajo de las personas con discapacidad, una vez superado el proceso selectivo, ¿qué pueden solicitar al órgano convocante las personas que ingresen y hayan sido admitidas en la convocatoria ordinaria por el cupo de reserva para personas con discapacidad?","La alteración del orden de prelación para la elección de las plazas dentro del ámbito territorial que se determine en la convocatoria, por motivos de dificultades de desplazamiento.",Artículo 9.,doc002
+A2_009,A2,with_ref,"¿Cómo define el principio de estabilidad presupuestaria la Ley Orgánica 2/2012, de 27 de abril, de Estabilidad Presupuestaria y Sostenibilidad Financiera?",La situación de equilibrio o superávit estructural.,preambulo,doc114
+A2_010,A2,with_ref,"De acuerdo con el artículo 79 de la Ley 47/2003, de 26 de noviembre, General Presupuestaria, ¿quién es responsable de la custodia y uso de los fondos y de la rendición de la cuenta de los pagos a justificar?",El perceptor de la orden de pago a justificar.,Artículo 79.,doc107
+A2_011,A2,with_ref,"De acuerdo con el texto refundido de la Ley sobre Seguridad Social de los funcionarios civiles del Estado, aprobado mediante el Real Decreto Legislativo 4/2000, de 23 de junio, ¿qué contiene el fondo especial?","La totalidad de los bienes, derechos y acciones de las Mutualidades, Asociaciones y Montepíos aportados con su integración a la Mutualidad General de Funcionarios Civiles del Estado.",Artículo 34.,doc226
+A2_012,A2,with_ref,"¿Cuál es el órgano de cooperación administrativa encargado del seguimiento de la aplicación del contenido de la Ley 20/2013, de 9 de diciembre, de garantía de la unidad de mercado?",La Conferencia Sectorial para la Mejora Regulatoria y el Clima de Negocios.,Artículo 10.,doc052
+A2_013,A2,with_ref,"De acuerdo con la Ley 19/2013, de 9 de diciembre, de transparencia, acceso a la información pública y buen gobierno, ¿qué entidades privadas serán sujetos obligados a las disposiciones contenidas en el Capítulo II del Título I relativas a la publicidad activa?","Las que perciban durante el período de un año ayudas o subvenciones públicas en una cuantía superior a 100.000 euros o cuando al menos el 40 % del total de sus ingresos anuales tengan carácter de ayuda o subvención pública, siempre que alcancen como mínimo la cantidad de 5.000 euros.",Artículo 3.,doc089
+A2_014,A2,with_ref,"¿Cómo se organizan las Oficinas de la cooperación española, según lo dispuesto en la Ley 1/2023, de 20 de febrero, de Cooperación para el Desarrollo Sostenible y la Solidaridad Global?",Las Oficinas de la cooperación española son unidades adscritas orgánicamente a las Embajadas y Representaciones Permanentes bajo la dirección superior de su Jefatura de Misión y la dependencia funcional de la AECID.,Artículo 32.,doc044
+A2_015,A2,with_ref,"De acuerdo con la Ley 40/2015, de 1 de octubre, de Régimen Jurídico del Sector Público, ¿cuál es la definición de los organismos autónomos estatales?","Son entidades de derecho público, con personalidad jurídica propia, tesorería y patrimonio propios y autonomía en su gestión, que desarrollan actividades propias de la Administración Pública, en calidad de organizaciones instrumentales diferenciadas y dependientes de ésta.",Artículo 98.,doc082
+A2_016,A2,standard,¿Quién propone a los Magistrados del Tribunal Constitucional?,"4 el Congreso, 4 el Senado, 2 el Gobierno y 2 el Consejo General del Poder Judicial.",Artículo 15.,doc015
+A2_017,A2,standard,¿En qué casos los contratos administrativos especiales serán susceptibles de recurso especial en materia de contratación?,Cuando por sus características no sea posible fijar su precio de licitación.,Artículo 44.,doc043
+A2_018,A2,standard,¿Cada cuánto tiempo conocerá la Comisión de Seguimiento del Fondo de Reserva de la Seguridad Social de la evolución y composición del Fondo de Reserva?,Semestralmente.,Artículo 125.,doc223
+A2_019,A2,standard,"En los procedimientos de responsabilidad patrimonial, ¿cuándo podrá entenderse que la resolución es contraria a la indemnización del particular?","Cuando hayan transcurrido seis meses desde que se inició el procedimiento sin que haya recaido y se notifique resolución expresa o, en su caso, se haya formalizado el acuerdo",Artículo 91.,doc095
+A2_020,A2,standard,¿Cuál es el plazo improrrogable dentro del cual deberá desarrollarse la ejecución de la oferta de empleo público o instrumento similar?,Tres años.,Artículo 70.,doc220
+A2_021,A2,standard,¿Es posible nombrar a una Subdirectora General en la Administración General del Estado mediante adscripción provisional?,"No, los puestos de personal directivo público profesional no pueden cubrirse de manera provisional.",Artículo 127.,doc172
+A2_022,A2,standard,"¿Cómo se denominan los instrumentos de planificación de carácter abierto y permanente, en los que se podrán incluir puestos de trabajo vacantes, para fomentar una mayor ocupación de las plazas de necesaria cobertura y favorecer una movilidad ordenada y coordinada?",Concursos unitarios.,Artículo 111.,doc172
+A2_023,A2,standard,¿Qué titulación mínima se exige para el grupo profesional E2?,Título de Bachiller o Técnico o equivalentes.,Artículo 8.,doc034
+A2_024,A2,standard,¿Quiénes quedan obligatoriamente incluidos en el campo de aplicación del régimen especial de la Seguridad Social de los funcionarios civiles del Estado?,Los funcionarios en prácticas que aspiren a incorporarse a Cuerpos de la Administración Civil del Estado.,Artículo 3.,doc226
+A2_025,A2,standard,¿Es el embarazo una contingencia protegida por la prestación sanitaria de MUFACE?,"Sí, así lo establece el Reglamento General del Mutualismo Administrativo.",Artículo 66.,doc201
+A2_026,A2,standard,"¿Cuál es el complemento destinado a retribuir las condiciones particulares de algunos puestos de trabajo en atención a su especial dificultad técnica, dedicación, responsabilidad, incompatibilidad, peligrosidad o penosidad?",Complemento específico.,Artículo veintitrés.,doc061
+A2_027,A2,standard,¿Cuál será la duración del mandato de la Presidencia y del Adjunto de la Agencia Española de Protección de Datos?,Será de cinco años y puede ser renovado para otro período de igual duración.,Artículo 48.,doc121
+A2_028,A2,standard,"¿Con qué periodicidad presentará el Consejo de Participación de las Personas LGTBI una memoria detallando su actividad, reuniones y actuaciones?",Cada seis meses.,Artículo 9.,doc136
+A2_029,A2,standard,"En caso de apreciar riesgo de incumplimiento del objetivo de estabilidad presupuestaria de una Comunidad Autónoma, se formulará advertencia motivada sobre tal situación. ¿De qué plazo dispone la Administración advertida para adoptar las medidas necesarias para evitar este riesgo?",Un mes.,Artículo 19.,doc114
+A2_030,A2,standard,¿Cuál es el órgano competente para la confección de los escenarios presupuestarios plurianuales?,El Ministerio de Hacienda.,Artículo 28.,doc107
+A2_031,A2,with_options,"¿Cuál de las siguientes materias NO puede ser objeto de delegación en las Comisiones Legislativas Permanentes para la aprobación de proyectos o proposiciones de ley?
+a) Una ley orgánica.
+b) Una ley ordinaria que regule aspectos sectoriales de una política pública.
+c) Una proposición de ley ordinaria presentada por un grupo parlamentario.
+d) Un proyecto de ley ordinaria cuya tramitación haya sido delegada, aunque el Pleno pueda recabar en cualquier momento el
+debate y votación.",Una ley orgánica.,Artículo 75.,doc015
+A2_032,A2,with_options,"Indique la respuesta correcta en relación con los municipios, de conformidad con lo establecido en la Ley 7/1985, de 2 de abril, Reguladora de las Bases del Régimen Local:
+a) El Alcalde, los Tenientes de Alcalde, el Pleno y la Junta de Gobierno Local existen en todos los ayuntamientos.
+b) Los Tenientes de Alcalde sustituyen, por el orden de su nombramiento y en los casos de vacante, ausencia o enfermedad, al Alcalde, siendo libremente designados y removidos por los miembros del Pleno municipal.
+c) El Alcalde es el Presidente de la Corporación y ostenta el control y la fiscalización de los órganos de gobierno.
+d) Corresponde al Pleno municipal en los Ayuntamientos y a la Asamblea vecinal en el régimen de Concejo Abierto la declaración de lesividad de los actos del Ayuntamiento.",Corresponde al Pleno municipal en los Ayuntamientos y a la Asamblea vecinal en el régimen de Concejo Abierto la declaración de lesividad de los actos del Ayuntamiento.,Artículo 22.,doc148
+A2_033,A2,with_options,"Indique cuál de las siguientes opciones es un objetivo operativo de la Estrategia Española de Apoyo Activo al Empleo 2025-2028:
+a) Promover la digitalización del Sistema Nacional de Empleo y el desarrollo de herramientas digitales de apoyo a la labor de los servicios públicos de empleo.
+b) Promover la participación de las entidades colaboradoras de los servicios públicos de empleo.
+c) Promover el acompañamiento integral a las empresas.
+d) Promover la plena implementación de los servicios garantizados a las personas",Promover la digitalización del Sistema Nacional de Empleo y el desarrollo de herramientas digitales de apoyo a la labor de los servicios públicos de empleo,CAPÍTULO III,doc023
+A2_034,A2,with_options,"¿Qué NO debe contener el modelo de gestión de contingencias migratorias extraordinarias para la infancia y la adolescencia migrante no acompañada, de acuerdo con lo establecido legalmente?
+a) El conjunto de criterios objetivos para la determinación, por el órgano competente de la Administración General del Estado, de cuál será la ubicación de las personas menores de edad extranjeras no acompañadas en las diferentes comunidades o ciudades autónomas.
+b) La regulación del mecanismo de derivación de las personas menores de edad extranjeras no acompañadas a otras comunidades o ciudades autónomas.
+c) Los criterios para la determinación del número de plazas por comunidad autónoma o ciudad autónoma, para atender a las personas menores de edad extranjeras no acompañadas en caso de derivación.
+d) Un análisis de la situación de las familias de las personas menores de edad extranjeras no acompañadas.",Un análisis de la situación de las familias de las personas menores de edad extranjeras no acompañadas.,Artículo 35 ter.,doc134
+A2_035,A2,with_options,"¿Cuáles de las siguientes son fuentes del Ordenamiento Jurídico Español?
+a) La Ley, los Tratados Internacionales y la jurisprudencia.
+b) La Ley, los Reglamentos y la doctrina del Tribunal Supremo.
+c) La Ley, los Reglamentos y la jurisprudencia.
+d) La Ley, la costumbre y los principios generales del derecho.","La Ley, la costumbre y los principios generales del derecho.",Artículo 1.,doc009
+A2_036,A2,with_options,"En los contratos de obras, la solvencia técnica del empresario podrá ser acreditada a elección del órgano de contratación teniendo en cuenta la relación de las obras ejecutadas en el curso de:
+a) Los dos últimos años.
+b) Los cinco últimos años.
+c) Los tres últimos años.
+d) Los cuatro últimos años.",Los cinco últimos años.,Artículo 88.,doc043
+A2_037,A2,with_options,"¿Cuál de los siguientes es el órgano responsable de la administración y custodia de la Base de Datos Nacional de Subvenciones?
+a) El Ministerio de Hacienda.
+b) La Intervención General de la Administración del Estado.
+c) El Ministerio de Economía, Comercio y Empresa.
+d) La Autoridad Independiente de Responsabilidad Fiscal.",La Intervención General de la Administración del Estado.,Artículo 20.,doc104
+A2_038,A2,with_options,"¿Cuál de los siguientes NO es un requisito para la adquisición de la condición de funcionario de carrera?
+a) La firma del contrato y el alta en nómina.
+b) La toma de posesión dentro del plazo que se establezca.
+c) El acto de acatamiento de la Constitución y, en su caso, del Estatuto de Autonomía correspondiente y del resto del Ordenamiento Jurídico.
+d) El nombramiento por el órgano o autoridad competente, que será publicado en el Diario Oficial correspondiente.",La firma del contrato y el alta en nómina.,Artículo 62.,doc220
+A2_039,A2,with_options,"¿Cuál de las siguientes afirmaciones sobre los trienios es correcta?
+a) Serán iguales, en todas las Administraciones públicas, para cada uno de los grupos de clasificación según el nivel del complemento de destino que se perciba.
+b) Corresponde al índice de proporcionalidad asignado anualmente a cada uno de los grupos en que se organizan los Cuerpos y Escalas, Clases o Categorías.
+c) Serán iguales en todas las Administraciones públicas, para cada uno de los grupos en que se clasifican los cuerpos, escalas, categorías o clases de funcionarios.
+d) Corresponde al índice de proporcionalidad asignado cada tres años a cada uno de los grupos en que se organizan los Cuerpos y Escalas, Clases o Categorías.","Serán iguales en todas las Administraciones públicas, para cada uno de los grupos en que se clasifican los cuerpos, escalas, categorías o clases de funcionarios",Artículo veintitrés.,doc061
+A2_040,A2,with_options," El nombramiento del Defensor del Pueblo será acreditado:
+a) Por el Presidente del Gobierno, con su firma.
+b) Solamente por el Presidente del Senado, con su firma.
+c) Conjuntamente por los Presidentes del Congreso y del Senado con sus firmas.
+d) Por el Rey con su firma.",Conjuntamente por los Presidentes del Congreso y del Senado con sus firmas.,Artículo cuarto.,doc125
+A2_041,A2,with_options,"En caso de cese en el cargo de Magistrado del Tribunal Constitucional, por haber sido declarado responsable civilmente por dolo:
+a) Decidirá el Tribunal en Pleno, por mayoría simple.
+b) Decidirá el Tribunal en Pleno, por mayoría de las tres cuartas partes de sus miembros.
+c) Decidirá el presidente del Tribunal Constitucional.
+d) Decidirá el Tribunal en pleno, por mayoría de las tres quintas partes de sus miembros","Decidirá el Tribunal en Pleno, por mayoría de las tres cuartas partes de sus miembros.",Artículo veintitrés.,doc128
+A2_042,A2,with_options,"Señale la afirmación correcta:
+a) El Consejo de Estado emitirá dictamen sobre cuantos asuntos sometan a su consulta el Gobierno o sus miembros.
+b) La consulta al Consejo de Estado será facultativa cuando así lo establezcan las leyes, siendo los dictámenes que emite vinculantes.
+c) Los dictámenes del Consejo de Estado serán vinculantes, salvo que su Presidente disponga lo contrario.
+d) Los asuntos en que hubiera dictaminado el Pleno del Consejo de Estado podrán remitirse a informe de otro órgano de la Administración.",El Consejo de Estado emitirá dictamen sobre cuantos asuntos sometan a su consulta el Gobierno o sus miembros.,Artículo segundo.,doc124
+A2_043,A2,with_options,"La creación y supresión de las Misiones Diplomáticas Permanentes y Representaciones Permanentes se realizará mediante:
+a) Real decreto del Consejo de Ministros, a iniciativa del Ministerio de Asuntos Exteriores y de Cooperación, y a propuesta del Ministerio de Hacienda y Administraciones Públicas, previo informe del Consejo Ejecutivo de Política Exterior.
+b) Ley de las Cortes Generales, previo informe del Consejo de Política Exterior.
+c) Orden del Ministro de Asuntos Exteriores.
+d) Real decreto del Consejo de Ministros, a iniciativa del Ministerio del Interior, y a propuesta del Ministerio de Asuntos Exteriores y de Cooperación, previo informe del Consejo Ejecutivo de Política Exterior","Real decreto del Consejo de Ministros, a iniciativa del Ministerio de Asuntos Exteriores y de Cooperación, y a propuesta del Ministerio de Hacienda y Administraciones Públicas, previo informe del Consejo Ejecutivo de Política Exterior",Artículo 42.,doc057
+A2_044,A2,with_options,"Indique cuál es el órgano que aunará el conjunto de la información estadística disponible en materia de extranjería, inmigración, protección internacional y nacionalidad, con independencia de la Administración Pública responsable de su elaboración. Indique cuál:
+a) Consejo General para la Inmigración.
+b) Comisión Multilateral para la Inmigración.
+c) Observatorio Permanente de la Inmigración.
+d) Foro para la Integración Social de los Inmigrantes",Observatorio Permanente de la Inmigración.,Disposición adicional quinta.,doc134
+A2_045,A2,with_options,"La Sala de lo Penal de la Audiencia Nacional conocerá de:
+a) Los delitos cometidos fuera del territorio nacional, cuando conforme a las leyes o a los tratados corresponda su enjuiciamiento a los Tribunales españoles.
+b) Los recursos de casación, revisión y otros extraordinarios en materia penal que establezca la ley.
+c) La instrucción y enjuiciamiento de las causas contra el Presidente del Gobierno, Presidentes del Congreso y del Senado, Presidente del Tribunal Supremo y del Consejo General del Poder Judicial, Presidente del Tribunal Constitucional, miembros del Gobierno, Diputados y Senadores.
+d) La instrucción y el fallo de las causas penales contra jueces, magistrados y miembros del Ministerio Fiscal por delitos o faltas cometidos en el ejercicio de su cargo en la comunidad autónoma, siempre que esta atribución no corresponda al Tribunal Supremo.","Los delitos cometidos fuera del territorio nacional, cuando conforme a las leyes o a los tratados corresponda su enjuiciamiento a los Tribunales españoles",Artículo 23.,doc126
+A2_046,A2,off_topic,¿Qué requisitos debo cumplir para constituir una sociedad limitada en España?,,,
+A2_047,A2,off_topic,¿Cuánto tiempo de antigüedad hace falta para solicitar una excedencia voluntaria en una empresa privada?,,,
+A2_048,A2,off_topic,¿Qué recursos existen para reclamar una factura de electricidad que considero incorrecta?,,,
+A2_049,A2,off_topic,¿Cómo se solicita el certificado de antecedentes penales para trabajar en el extranjero?,,,
+A2_050,A2,off_topic,¿Cuál es el plazo para presentar la declaración de la renta de una persona física?,,,
+A2_051,A2,off_topic,¿Qué vacunas necesito para viajar a Kenia?,,,
+A2_052,A2,off_topic,¿Cómo puedo saber si un cuadro es una copia o una obra original?,,,
+A2_053,A2,off_topic,¿Qué diferencia hay entre el aceite de oliva virgen y virgen extra?,,,
+A2_054,A2,off_topic,¿Cuáles son los síntomas más comunes de una intolerancia a la lactosa?,,,
+A2_055,A2,off_topic,¿Qué documentación necesito para matricular un coche importado de otro país?,,,

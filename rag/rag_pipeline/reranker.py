@@ -47,11 +47,11 @@ class CrossEncoderReranker:
         filtering below degrades accordingly - its relative-score cutoff
         self-skips when `rerank_prob` is None.
         """
-        scored = self._score(query, chunks)
+        scored = self._score_and_sort(query, chunks)
         filtered, n_tokens = self._filter(scored)
         return scored, filtered, n_tokens
 
-    def _score(self, query: str, chunks: Sequence[RetrievedChunk]) -> list[RetrievedChunk]:
+    def _score_and_sort(self, query: str, chunks: Sequence[RetrievedChunk]) -> list[RetrievedChunk]:
         """Score every chunk against the query and return them sorted, best first.
 
         Returns `chunks` unscored, in retrieval order, if the model call fails.
@@ -81,7 +81,7 @@ class CrossEncoderReranker:
 
         Applies three limits, whichever binds first:
 
-        1. Relative score cutoff: keep chunks with `rerank_prob >= keep_ratio * top_prob`. 
+        1. Relative score cutoff: keep chunks with `rerank_prob >= keep_ratio * top_prob`.
         2. `max_chunks`: hard cap on the final count.
         3. `max_context_tokens`: stop adding once the running estimate would
            exceed it; never emits a partially-truncated chunk.
@@ -89,26 +89,25 @@ class CrossEncoderReranker:
         Returns no chunks when the input is empty or, with scores available,
         the top chunk's probability is below `min_relevance_prob`.
         """
-        config = self._config
         if not chunks:
             return [], 0
 
         top_prob = chunks[0].rerank_prob
-        if top_prob is not None and top_prob < config.min_relevance_prob:
+        if top_prob is not None and top_prob < self._config.min_relevance_prob:
             return [], 0
 
         candidates = list(chunks)
         if top_prob is not None:
-            threshold = config.keep_ratio * top_prob
+            threshold = self._config.keep_ratio * top_prob
             candidates = [
                 c for c in candidates if c.rerank_prob is not None and c.rerank_prob >= threshold
             ]
 
         selected: list[RetrievedChunk] = []
         running_tokens = 0
-        for chunk in candidates[: config.max_chunks]:
-            chunk_tokens = _estimate_tokens(chunk.content, config.chars_per_token)
-            if selected and running_tokens + chunk_tokens > config.max_context_tokens:
+        for chunk in candidates[: self._config.max_chunks]:
+            chunk_tokens = _estimate_tokens(chunk.content, self._config.chars_per_token)
+            if selected and running_tokens + chunk_tokens > self._config.max_context_tokens:
                 break
             selected.append(chunk)
             running_tokens += chunk_tokens

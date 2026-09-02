@@ -43,7 +43,7 @@ class RetrievalConfig:
     rerank_model: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
     rerank_batch_size: int = 8
     rerank_max_length: int = 512
-    threads: int = 4  # Oracle Cloud Free Tier: 4 ARM cores, no GPU
+    threads: int = 2  # Google Cloud e2-highmem-2: 2 vCPUs, no GPU
     max_chunks: int = 4
     max_context_tokens: int = 3000
     chars_per_token: float = 3.6  # Spanish heuristic; no local tokenizer available

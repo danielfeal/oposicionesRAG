@@ -49,34 +49,44 @@ class Components:
     config: AppConfig
 
 
-def build_components(config: AppConfig | None = None) -> Components:
-    """Assemble the production components from configuration.
-
-    Constructs two `OllamaClient`s plus one Qdrant client, the 
-    shared hybrid vector store, the CPU reranker and the SQLite trace store.
-
-    Both models are warmed up here (forced into memory) so the first real
-    query doesn't pay for a cold load; `config.llm.keep_alive` then keeps
-    them resident between queries.
-    """
-    config = config or AppConfig()
-
+def build_retrieval_only(config: AppConfig) -> tuple[HybridRetriever, CrossEncoderReranker]:
+    """Construct the retrieval stages: Qdrant client, embeddings, vector store, reranker."""
     client = QdrantClient(host=config.qdrant.host, port=config.qdrant.port)
     dense_embeddings = HuggingFaceEmbeddings(model_name=config.embeddings.dense_model)
     sparse_embeddings = FastEmbedSparse(model_name=config.embeddings.sparse_model)
     vector_store = build_vector_store(client, config, dense_embeddings, sparse_embeddings)
 
+    return HybridRetriever(vector_store, config), CrossEncoderReranker(config.retrieval)
+
+
+def build_ollama(config: AppConfig) -> tuple[RelevanceChecker, AnswerGenerator]:
+    """Construct the two Ollama-backed stages, warming both models.
+
+    Both models are warmed up here (forced into memory) so the first real query
+    doesn't pay for a cold load; `config.llm.keep_alive` then keeps them
+    resident between queries.
+    """
     generation_llm = OllamaClient(config.llm)
     relevance_llm = OllamaClient(replace(config.llm, model=config.llm.relevance_model))
     generation_llm.warm_up()
     relevance_llm.warm_up()
+
+    return RelevanceChecker(relevance_llm), AnswerGenerator(generation_llm, config.retrieval)
+
+
+def build_components(config: AppConfig | None = None) -> Components:
+    """Assemble the production components from configuration."""
+    config = config or AppConfig()
+
+    retriever, reranker = build_retrieval_only(config)
+    relevance_checker, generator = build_ollama(config)
     trace_store = SqliteTraceStore(config.trace_db) if config.trace_db else NullTraceStore()
 
     return Components(
-        retriever=HybridRetriever(vector_store, config),
-        reranker=CrossEncoderReranker(config.retrieval),
-        relevance_checker=RelevanceChecker(relevance_llm),
-        generator=AnswerGenerator(generation_llm, config.retrieval),
+        retriever=retriever,
+        reranker=reranker,
+        relevance_checker=relevance_checker,
+        generator=generator,
         trace_store=trace_store,
         config=config,
     )
@@ -227,6 +237,7 @@ def _print_trace(trace: PipelineTrace) -> None:
 def main() -> None:
     """CLI entry point."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    logging.getLogger("httpx").setLevel(logging.WARNING)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--query", required=True)

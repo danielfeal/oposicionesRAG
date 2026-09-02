@@ -37,8 +37,6 @@ GENERATION_SYSTEM_PROMPT = (
     "Responde siempre en español."
 )
 
-REFUSAL_ANSWER = "No dispongo de información suficiente en el temario para responder a esa pregunta."
-
 
 @dataclass(frozen=True)
 class BuiltContext:
@@ -99,10 +97,6 @@ class AnswerGenerator:
         self, query: str, context: BuiltContext, history: Sequence[dict[str, str]]
     ) -> AsyncIterator[str]:
         """Yield answer fragments as they arrive from Ollama."""
-        if not context.chunks:
-            yield REFUSAL_ANSWER
-            return
-
         messages = [{"role": "system", "content": GENERATION_SYSTEM_PROMPT}]
         messages.extend(list(history)[-self._config.max_history_turns :])
         messages.append(

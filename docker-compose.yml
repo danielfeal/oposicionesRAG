@@ -1,11 +1,12 @@
 # Single-VM deployment: Qdrant + Ollama + the Chainlit app, all on one
-# internal bridge network. Nothing here is published beyond 127.0.0.1 - a
-# reverse proxy (Caddy, added separately) is what actually faces the
-# internet and terminates TLS.
+# internal bridge network. `app` is only published to 127.0.0.1 - Caddy is
+# what actually faces the internet, terminating TLS and reverse-proxying to
+# `app` over the internal network.
 #
 # Bring up: docker compose up -d --build
-# Data persists under ./data/ (qdrant, ollama models) and ./documentation/
-# (trace_db, same path/format the local CLI and Chainlit already use).
+# Data persists under ./data/ (qdrant, ollama models, caddy TLS state) and
+# ./documentation/ (trace_db, same path/format the local CLI and Chainlit
+# already use).
 
 services:
   qdrant:
@@ -68,6 +69,21 @@ services:
       - ./documentation:/app/documentation
     ports:
       - "127.0.0.1:8000:8000"
+    networks:
+      - internal
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./data/caddy/data:/data
+      - ./data/caddy/config:/config
     networks:
       - internal
 

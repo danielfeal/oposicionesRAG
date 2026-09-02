@@ -1,0 +1,3 @@
+rag-oposiciones.duckdns.org {
+	reverse_proxy app:8000
+}

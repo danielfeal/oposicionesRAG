@@ -1,0 +1,117 @@
+﻿id,exam,question_type,question,ground_truth_answer,ground_truth_ref,ground_truth_doc_id
+C2_001,C2,with_ref,"De conformidad con la Ley 39/2015, de 1 de octubre, del Procedimiento Administrativo Común de las Administraciones Públicas, en los procedimientos iniciados a solicitud del interesado, ¿qué consecuencia produciría el vencimiento del plazo máximo sin haberse notificado resolución expresa?","Legitimaría al interesado o interesados para entenderla estimada por silencio administrativo, excepto en los supuestos en los que una norma con rango de ley o una norma de Derecho de la Unión Europea o de Derecho internacional aplicable en España establezcan lo contrario.",Artículo 24.,doc095
+C2_002,C2,with_ref,"Conforme a la Ley Orgánica 3/2007, de 22 de marzo, para la igualdad efectiva de mujeres y hombres, ¿qué se considera  la situación en que una disposición, criterio o práctica aparentemente neutros pone a personas de un sexo en desventaja particular con respecto a personas del otro, salvo que dicha disposición, criterio o práctica puedan justificarse objetivamente en atención a una finalidad legítima y que los medios para alcanzar dicha finalidad sean necesarios y adecuados?",Discriminación indirecta por razón de sexo.,Artículo 6.,doc130
+C2_003,C2,with_ref,"Según el Real Decreto 208/1996, de 9 de febrero, por el que se regulan los servicios de información administrativa y atención al ciudadano, ¿ de qué formas se clasifica la información administrativa?",General y particular.,Artículo 1.,doc207
+C2_004,C2,with_ref,"¿Quién nombra, conforme a lo previsto en la Constitución Española de 1978, a los miembros del Tribunal Constitucional?",El Rey.,Artículo 159.,doc015
+C2_005,C2,with_ref,"El Real Decreto 364/1995, de 10 de marzo, por el que se aprueba el Reglamento General de Ingreso del Personal al servicio de la Administración General del Estado y de Provisión de Puestos de Trabajo y Promoción Profesional de los Funcionarios Civiles de la Administración General del Estado, ¿qué órganos de selección establece en su artículo 10?",Los Tribunales y las Comisiones Permanentes de Selección. ,Artículo 10.,doc199
+C2_006,C2,with_ref,"De acuerdo con lo establecido en la Ley Orgánica 2/1979, de 3 de octubre, del Tribunal Constitucional, ¿cuántos miembros deben estar presentes para que el Tribunal en Pleno puede adoptar acuerdos?","Al menos, dos tercios de los miembros que en cada momento lo compongan.",Artículo catorce.,doc128
+C2_007,C2,with_ref,"¿Cómo define el acoso discriminatorio La Ley 4/2023, de 28 de febrero, para la igualdad real y efectiva de las personas trans y para la garantía de los derechos de las personas LGTBI?","Cualquier conducta realizada por razón de alguna de las causas de discriminación previstas en esta ley, con el objetivo o la consecuencia de atentar contra la dignidad de una persona o grupo en que se integra y de crear un entorno intimidatorio, hostil, degradante, humillante u ofensivo",Artículo 3.,doc136
+C2_008,C2,with_ref,"Según el Real Decreto 365/1995, de 10 de marzo, por el que se aprueba el Reglamento de Situaciones Administrativas de los Funcionarios Civiles de la Administración General del Estado, ¿en qué situación quedará el funcionario declarado en suspensión firme de funciones de no solicitar el reingreso en el tiempo establecido? ","En la situación de excedencia voluntaria por interés particular, con efectos desde la fecha de finalización de la sanción. ",Artículo 22.,doc195
+C2_009,C2,with_ref,"Conforme al artículo 5 de la Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales, ¿quiénes están sujetos al deber de confidencialidad?","Los responsables y encargados del tratamiento de datos, así como todas las personas que intervengan en cualquier fase de este.",Artículo 5.,doc121
+C2_010,C2,with_ref,"Según el artículo 18 de la ley 50/1997, de 27 de noviembre, del Gobierno que regula el funcionamiento del Consejo de Ministros, ¿quién actúa como Secretario de las reuniones de este órgano colegiado? ",El Ministro de la Presidencia.,Artículo 18.,doc091
+C2_011,C2,with_ref,"De conformidad con el artículo 58 de la Ley 47/2003, de 26 de noviembre, General Presupuestaria, ¿mediante qué se financiarán las incorporaciones de crédito que afecten al presupuesto del Estado?",Baja en el Fondo de Contingencia o baja en otros créditos de operaciones no financieras.,Artículo 58.,doc107
+C2_012,C2,with_ref,"De acuerdo con la Ley 40/2015, de 1 de octubre, de Régimen Jurídico del Sector Público, ¿cuál es la definición de los organismos autónomos estatales?","Son entidades de derecho público, con personalidad jurídica propia, tesorería y patrimonio propios y autonomía en su gestión, que desarrollan actividades propias de la Administración Pública, en calidad de organizaciones instrumentales diferenciadas y dependientes de ésta.",Artículo 98.,doc082
+C2_013,C2,with_ref,"Según el artículo 10 del texto refundido de la Ley del Estatuto Básico del Empleado Público, ¿en qué circunstancia se puede nombrar a un funcionario interino?","Para la sustitución transitoria de los titulares, durante el tiempo estrictamente necesario.",Artículo 10.,doc220
+C2_014,C2,with_ref,"Según lo establecido en la Ley 7/1985, de 2 de abril, Reguladora de las Bases del Régimen Local, ¿la coordinación de la prestación del servicio de recogida y tratamiento de residuos es competencia de la Diputación provincial o entidad equivalente en municipios con qué población?",Población inferior a 20.000 habitantes.,Artículo 26.,doc148
+C2_015,C2,with_ref,"Según el artículo 13 de la Ley 19/2013, de 9 de diciembre, de transparencia, acceso a la información pública y buen gobierno, ¿qué se entiende por los contenidos o documentos, cualquiera que sea su formato o soporte, que obren en poder de alguno de los sujetos incluidos en el ámbito de aplicación de este título y que hayan sido elaborados o adquiridos en el ejercicio de sus funciones?",Información pública.,Artículo 13.,doc089
+C2_016,C2,standard,¿Cómo se lleva a cabo el nombramiento de los Secretarios de Estado?,"Por Real Decreto del Consejo de Ministros, a propuesta del Presidente del Gobierno o del miembro del Gobierno a cuyo Departamento pertenezcan.",Artículo 15.,doc091
+C2_017,C2,standard,¿Cómo se pueden recurrir las resoluciones dictadas en materia de acceso a la información pública?,Mediante recurso contencioso administrativo,Artículo 20.,doc089
+C2_018,C2,standard, ¿En qué situación se encuentran los funcionarios transferidos a las Comunidades Autónomas en la función pública en la que se integran?,Servicio activo.,Artículo 88.,doc220
+C2_019,C2,standard,¿Por quién serán confeccionados  los escenarios presupuestarios plurianuales en los que se enmarcarán anualmente los Presupuestos Generales del Estado?,El Ministerio de Hacienda.,Artículo 28.,doc107
+C2_020,C2,standard,¿Cuál es el principio en virtud del cual la sociedad debe permitir que todas las personas con discapacidad tengan las oportunidades y recursos necesarios para participar plenamente en cualquier ámbito de la vida?,Inclusión social.,Artículo 2.,doc222
+C2_021,C2,standard,"¿Qué principio se define como ""la capacidad de las Administraciones Públicas para que partiendo del conocimiento adquirido del usuario final del servicio, proporcione servicios precumplimentados y se anticipe a las necesidades""?",Personalización y proactividad.,Artículo 2.,doc184
+C2_022,C2,standard,¿De qué ministerio depende  el Consejo de Participación de personas LGTBI?,Ministerio de Igualdad.,Artículo 9.,doc136
+C2_023,C2,standard,¿Mediante qué sistema se realizará la provisión de puestos de personal directivo público profesional en la Administración del Estado?,Libre designación.,Artículo 2.,doc204
+C2_024,C2,standard,¿A qué municipios se les aplicará el régimen de organización de los municipios de gran población?,"A los municipios que sean capitales de provincia, capitales autonómicas o sedes de las instituciones autonómicas cuando así lo decidan las Asambleas Legislativas correspondientes a iniciativa de los respectivos ayuntamientos.",Artículo 121.,doc148
+C2_025,C2,standard,"¿A quién le corresponde fijar el importe de las indemnizaciones que proceda abonar cuando el Tribunal Constitucional haya declarado, a instancia de parte interesada, la existencia de un funcionamiento anormal en la tramitación de los recursos de amparo o de las cuestiones de inconstitucionalidad?",Al Consejo de Ministros.,Artículo 32.,doc082
+C2_026,C2,standard,"Con carácter general, ¿cual es la duración máxima de una comisión de servicio?",No durará más de un mes en territorio nacional y de tres en el extranjero.,Artículo 5.,doc027
+C2_027,C2,standard,¿Qué Comisión se designará en las Cortes Generales para relacionarse con el Defensor del Pueblo e informar a los respectivos Plenos en cuantas ocasiones sea necesario?,Una Comisión Mixta Congreso-Senado,Artículo 2.,doc125
+C2_028,C2,standard,¿Quiénes quedan obligatoriamente incluidos en el campo de aplicación del régimen especial de la Seguridad Social de los funcionarios civiles del Estado?,Los funcionarios en prácticas que aspiren a incorporarse a Cuerpos de la Administración Civil del Estado.,Artículo 8.,doc226
+C2_029,C2,standard,"¿Qué complemento retribuye las condiciones particulares de algunos puestos de trabajo en atención a su especial dificultad técnica, dedicación, responsabilidad, incompatibilidad, peligrosidad o penosidad de un puesto de trabajo?",Complemento específico.,Artículo 23,doc061
+C2_030,C2,standard,"¿Qué grado corresponde a la situación de dependencia cuando la persona necesita ayuda para realizar varias actividades básicas de la vida diaria, al menos una vez al día o tienen necesidades de apoyo intermitente o limitado para su autonomía personal?",Grado I: Dependencia moderada.,Artículo 26.,doc073
+C2_031,C2,with_options,"Las Fuerzas Armadas constituidas por el Ejército de Tierra, la Armada y el Ejército del Aire, tienen como misión:
+a) Garantizar la soberanía e independencia de España.
+b) Defender su integridad patrimonial y el ordenamiento constitucional.
+c) Defender su integridad territorial y el ordenamiento democrático.
+d) Garantizar la soberanía e individualidad de España.",Garantizar la soberanía e independencia de España.,Artículo 8.,doc015
+C2_032,C2,with_options,"Señale, de entre las siguientes funciones, cuál corresponde a los Ministros:
+a) Otorgar premios y recompensas propios del Departamento y proponer las que correspondan según sus normas reguladoras.
+b) Convocar y resolver los concursos de personal funcionario.
+c) Desempeñar la jefatura superior de todo el personal del Departamento.
+d) Convocar y resolver pruebas selectivas de personal funcionario y laboral",Otorgar premios y recompensas propios del Departamento y proponer las que correspondan según sus normas reguladoras,Artículo 61.,doc082
+C2_033,C2,with_options,"Señale cuál de los siguientes servicios deberá prestarse en todos los Municipios:
+a) Pavimentación de las vías públicas.
+b) Tratamiento de residuos.
+c) Prevención y extinción de incendios.
+d) Biblioteca pública.",Pavimentación de las vías públicas.,Artículo 26.,doc148
+C2_034,C2,with_options,"¿Cuál de las siguientes infracciones está tipificada como muy grave conforme?
+a) La publicación o utilización indebida de la documentación o información a que tengan o hayan tenido acceso por razón de su cargo o función.
+b) El abuso de autoridad en el ejercicio del cargo.
+c) La intervención en un procedimiento administrativo cuando se dé alguna de las causas de abstención legalmente señaladas.
+d) No guardar el debido sigilo respecto a los asuntos que se conozcan por razón del cargo, cuando causen perjuicio a la Administración o se utilice en provecho propio.",La publicación o utilización indebida de la documentación o información a que tengan o hayan tenido acceso por razón de su cargo o función.,Artículo 29.,doc089
+C2_035,C2,with_options,"Es un principio ético en la actuación de los empleados públicos:
+a) Tratar con atención y respeto a los ciudadanos, a sus superiores y a los restantes empleados públicos.
+b) Administrar los recursos y bienes públicos con austeridad y no utilizar los mismos en provecho propio o de personas allegadas.
+c) No aceptar ningún trato de favor o situación que implique privilegio o ventaja injustificada, por parte de personas físicas o entidades privadas.
+d) Obedecer las instrucciones y órdenes profesionales de los superiores, salvo que constituyan una infracción manifiesta del ordenamiento jurídico, en cuyo caso las pondrán inmediatamente en conocimiento de los órganos de inspección procedentes.","No aceptar ningún trato de favor o situación que implique privilegio o ventaja injustificada, por parte de personas físicas o entidades privadas",Artículo 53.,doc220
+C2_036,C2,with_options,"Se considera infracción muy grave:
+a) Los actos discriminatorios u omisiones que supongan directa o indirectamente un trato menos favorable a la persona con discapacidad en relación con otra persona que se encuentre en situación análoga o comparable.
+b) La imposición abusiva de cualquier forma de renuncia total o parcial a los derechos de las personas por motivo de o por razón de su discapacidad, basada en una posición de ventaja.
+c) Las acciones que deliberadamente generen un grave perjuicio económico o profesional para las personas con discapacidad.
+d) La coacción, amenaza, represalia ejercida sobre la persona con discapacidad o sobre otras personas físicas o jurídicas, que hayan entablado o pretendan entablar cualquier clase de acción legal, reclamación, denuncia o participen en procedimientos ya iniciados para exigir el cumplimiento del principio de igualdad de oportunidades, así como la tentativa de ejercitar tales actos.",Las acciones que deliberadamente generen un grave perjuicio económico o profesional para las personas con discapacidad.,Artículo 95.,doc222
+C2_037,C2,with_options,"Las cartas de servicios y sus posteriores actualizaciones serán
+aprobadas mediante:
+a) Resolución del Subsecretario del departamento al que pertenezca el órgano y se publicará en el Boletín Oficial del Estado.
+b) Resolución del Subsecretario del departamento al que pertenezca el órgano, no será necesaria la publicación en Boletín Oficial del Estado, pero sí se llevarán a cabo las acciones divulgativas más eficaces, garantizando siempre que puedan ser conocidas por los usuarios en todas sus dependencias con atención al público.
+c) Orden Ministeral del departamento al que pertenezca el órgano y se publicará en el Boletín Oficial del Estado.
+d) Orden Ministerial del departamento al que pertenezca el órgano sin que sea necesaria la publicacion en el Boletín Oficial del Estado, pero se llevarán a cabo las acciones divulgativas más eficaces, garantizando siempre que puedan ser conocidas por los usuarios en todas sus dependencias con atención al público.",Resolución del Subsecretario del departamento al que pertenezca el órgano y se publicará en el Boletín Oficial del Estado.,Artículo 11.,doc158
+C2_038,C2,with_options,"¿Cuál de las siguientes facultades podrá ejercer el Presidente del Gobierno en funciones?
+a) Proponer al Rey la convocatoria de un referéndum consultivo.
+b) Plantear la cuestión de confianza.
+c) Proponer al Rey la disolución de alguna de las Cámaras, o de las Cortes Generales.
+d) Aprobar decretos leyes.",Aprobar decretos leyes.,Artículo 21.,doc091
+C2_039,C2,with_options,"Previa su declaración de lesividad para el interés público, las Administraciones Públicas podrán impugnar ante el orden jurisdiccional contencioso-administrativo:
+a) Los actos favorables para los interesados que sean anulables.
+b) Los actos desfavorables para los interesados que sean nulos de pleno derecho.
+c) Los actos favorables y desfavorables para los interesados que sean anulables.
+d) Los actos favorables para los interesados, ya sean nulos de pleno derecho o anulables.",Los actos favorables para los interesados que sean anulables.,Artículo 107.,doc095
+C2_040,C2,with_options,"¿Cuál de las siguientes entidades es un organismo público vinculado o dependiente de la Administración General del Estado?
+a) Sociedades mercantiles.
+b) Autoridades administrativas independientes.
+c) Fondos sin personalidad jurídica.
+d) Entidades Públicas Empresariales.",Entidades Públicas Empresariales.,Artículo 2.,doc107
+C2_041,C2,with_options,"En lo que respecta a los datos sobre las personas físicas fallecidas, señale la opción correcta:
+a) Los familiares no podrán acceder a los datos personales cuando lo prohíba una norma reglamentaria.
+b) Los herederos podrán acceder a los datos de carácter patrimonial del causante en todo caso.
+c) Sólo podrán acceder a los datos personales los familiares hasta el segundo grado de cosanguinidad o afinidad.
+d) Los herederos sólo podrán ejercitar el derecho de cancelación",Los herederos podrán acceder a los datos de carácter patrimonial del causante en todo caso.,Artículo 3.,doc121
+C2_042,C2,with_options,"La situación en que se encuentra una persona que sea, haya sido o pudiera ser tratada, en atención a su sexo, de manera menos favorable que otra en situación comparable, se considera:
+a) Acoso sexual.
+b) Acoso por razón de sexo.
+c) Discriminación directa por razón de sexo.
+d) Discriminación indirecta por razón de sexo",Artículo 6.,,doc130
+C2_043,C2,with_options,"En caso de cese en el cargo de Magistrado del Tribunal Constitucional, por haber sido declarado responsable civilmente por dolo:
+a) Decidirá el Tribunal en Pleno, por mayoría simple.
+b) Decidirá el Tribunal en Pleno, por mayoría de las tres cuartas partes de sus miembros.
+c) Decidirá el presidente del Tribunal Constitucional.
+d) Decidirá el Tribunal en pleno, por mayoría de las tres quintas partes de sus miembros","Decidirá el Tribunal en Pleno, por mayoría de las tres cuartas partes de sus miembros.",Artículo veintitrés.,doc128
+C2_044,C2,with_options,"La creación y supresión de las Misiones Diplomáticas Permanentes y Representaciones Permanentes se realizará mediante:
+a) Real decreto del Consejo de Ministros, a iniciativa del Ministerio de Asuntos Exteriores y de Cooperación, y a propuesta del Ministerio de Hacienda y Administraciones Públicas, previo informe del Consejo Ejecutivo de Política Exterior.
+b) Ley de las Cortes Generales, previo informe del Consejo de Política Exterior.
+c) Orden del Ministro de Asuntos Exteriores.
+d) Real decreto del Consejo de Ministros, a iniciativa del Ministerio del Interior, y a propuesta del Ministerio de Asuntos Exteriores y de Cooperación, previo informe del Consejo Ejecutivo de Política Exterior","Real decreto del Consejo de Ministros, a iniciativa del Ministerio de Asuntos Exteriores y de Cooperación, y a propuesta del Ministerio de Hacienda y Administraciones Públicas, previo informe del Consejo Ejecutivo de Política Exterior",Artículo 42.,doc057
+C2_045,C2,with_options,"Los funcionarios de carrera se hallan en situación de servicio activo:
+a) Cuando acceden a la condición de Diputado o Senador.
+b) Cuando se encuentren en comisión de servicios.
+c) Cuando sean transferidos a una comunidad autónoma.
+d) Cuando estén en expectativa de destino",Cuando se encuentren en comisión de servicios,Artículo 3.,doc195
+C2_046,C2,off_topic,¿Qué requisitos debo cumplir para constituir una sociedad limitada en España?,,,
+C2_047,C2,off_topic,¿Cuánto tiempo de antigüedad hace falta para solicitar una excedencia voluntaria en una empresa privada?,,,
+C2_048,C2,off_topic,¿Qué recursos existen para reclamar una factura de electricidad que considero incorrecta?,,,
+C2_049,C2,off_topic,¿Cómo se solicita el certificado de antecedentes penales para trabajar en el extranjero?,,,
+C2_050,C2,off_topic,¿Cuál es el plazo para presentar la declaración de la renta de una persona física?,,,
+C2_051,C2,off_topic,¿Qué vacunas necesito para viajar a Kenia?,,,
+C2_052,C2,off_topic,¿Cómo puedo saber si un cuadro es una copia o una obra original?,,,
+C2_053,C2,off_topic,¿Qué diferencia hay entre el aceite de oliva virgen y virgen extra?,,,
+C2_054,C2,off_topic,¿Cuáles son los síntomas más comunes de una intolerancia a la lactosa?,,,
+C2_055,C2,off_topic,¿Qué documentación necesito para matricular un coche importado de otro país?,,,

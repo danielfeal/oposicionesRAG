@@ -1,0 +1,117 @@
+﻿id,exam,question_type,question,ground_truth_answer,ground_truth_ref,ground_truth_doc_id
+A1_001,A1,with_ref,"De acuerdo con el artículo 56.1 de la Constitución Española de 1978, ¿qué arbitra y modera el Rey?",El funcionamiento regular de las instituciones.,Artículo 56.,doc015
+A1_002,A1,with_ref,"Según la Ley 22/2009, de 18 de diciembre, por la que se regula el sistema de financiación de las Comunidades Autónomas de régimen común y Ciudades con Estatuto de Autonomía y se modifican determinadas normas tributarias, ¿qué fondo opera como recurso de cierre del sistema?",El Fondo de Suficiencia Global.,preambulo,doc101
+A1_003,A1,with_ref,"De acuerdo con lo establecido en la Ley Orgánica 2/1979, de 3 de octubre, del Tribunal Constitucional, ¿cuántos miembros deben estar presentes para que el Tribunal en Pleno puede adoptar acuerdos?","Al menos, dos tercios de los miembros que en cada momento lo compongan.",Artículo catorce.,doc128
+A1_004,A1,with_ref,"Según el artículo 133 de la Ley 39/2015, de 1 de octubre, del Procedimiento Administrativo Común de las Administraciones Públicas, ¿cuándo podrá prescindirse del trámite de consulta pública?",Cuando concurran razones graves de interés público que lo justifiquen.,Artículo 133.,doc095
+A1_005,A1,with_ref,"Según lo que se dispone en la Ley Orgánica 3/1980, de 22 de abril, del Consejo de Estado, ¿a propuesta de quién se nombra el Secretario General del Consejo de Estado?",A propuesta de la Comisión Permanente del Consejo de Estado.,Artículo 10.,doc124
+A1_006,A1,with_ref,"Conforme al artículo 5 de la Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales, ¿quiénes están sujetos al deber de confidencialidad?","Los responsables y encargados del tratamiento de datos, así como todas las personas que intervengan en cualquier fase de este.",Artículo 5.,doc121
+A1_007,A1,with_ref,"De acuerdo con el artículo 5 del Real Decreto Legislativo 4/2000, de 23 de junio, por el que se aprueba el texto refundido de la Ley sobre Seguridad Social de los Funcionarios Civiles del Estado, ¿cómo se integra en el Sector Público Institucional Estatal la Mutualidad General de Funcionarios Civiles del Estado (MUFACE)?",Como organismo público.,Artículo 5.,doc223
+A1_008,A1,with_ref,"De conformidad con el artículo 58 de la Ley 47/2003, de 26 de noviembre, General Presupuestaria, ¿mediante qué se financiarán las incorporaciones de crédito que afecten al presupuesto del Estado?",Baja en el Fondo de Contingencia o baja en otros créditos de operaciones no financieras.,Artículo 58.,doc107
+A1_009,A1,with_ref,"De acuerdo con la Ley 40/2015, de 1 de octubre, de Régimen Jurídico del Sector Público, ¿cuál es la definición de los organismos autónomos estatales?","Son entidades de derecho público, con personalidad jurídica propia, tesorería y patrimonio propios y autonomía en su gestión, que desarrollan actividades propias de la Administración Pública, en calidad de organizaciones instrumentales diferenciadas y dependientes de ésta.",Artículo 98.,doc082
+A1_010,A1,with_ref,"Según el artículo 10 del texto refundido de la Ley del Estatuto Básico del Empleado Público, ¿en qué circunstancia se puede nombrar a un funcionario interino?","Para la sustitución transitoria de los titulares, durante el tiempo estrictamente necesario.",Artículo 10.,doc220
+A1_011,A1,with_ref,"Conforme a la Ley Orgánica 3/2007, de 22 de marzo, para la igualdad efectiva de mujeres y hombres, ¿qué se considera la situación en que una disposición, criterio o práctica aparentemente neutros pone a personas de un sexo en desventaja particular con respecto a personas del otro, salvo que dicha disposición, criterio o práctica puedan justificarse objetivamente en atención a una finalidad legítima y que los medios para alcanzar dicha finalidad sean necesarios y adecuados?",Discriminación indirecta por razón de sexo.,Artículo 6.,doc130
+A1_012,A1,with_ref,"Según lo establecido en la Ley 7/1985, de 2 de abril, Reguladora de las Bases del Régimen Local, ¿la coordinación de la prestación del servicio de recogida y tratamiento de residuos es competencia de la Diputación provincial o entidad equivalente en municipios con qué población?",Población inferior a 20.000 habitantes.,Artículo 26.,doc148
+A1_013,A1,with_ref,"Según la Ley 42/2007, de 13 de diciembre, del Patrimonio Natural y de la Biodiversidad, ¿qué órgano aprobará las estrategias de conservación de especies amenazadas presentes en más de una comunidad autónoma?","La Conferencia Sectorial de Medio Ambiente, a propuesta de la Comisión Estatal para el Patrimonio Natural y la Biodiversidad, y previo informe del Consejo Estatal para el Patrimonio Natural y la Biodiversidad.",preambulo,doc094
+A1_014,A1,with_ref,"De acuerdo con el artículo 10 de la Ley 1/2023, de 20 de febrero, de Cooperación para el Desarrollo Sostenible y la Solidaridad Global, ¿cómo puede definirse la cooperación técnica?","El conjunto de actividades dirigidas bien al fortalecimiento de capacidades institucionales y de recursos humanos del país socio y de los actores de desarrollo, públicos, privados y de iniciativa social, bien al apoyo de la gestión integral del ciclo de proyectos y programas de cooperación y otras operaciones de cooperación financiera reembolsable.",Artículo 10.,doc044
+A1_015,A1,with_ref," Según la Ley 2/2014, de 25 de marzo, de la Acción y del Servicio Exterior del Estado, ¿cuál es el órgano colegiado de apoyo y asesoramiento al Presidente del Gobierno en el desempeño de su función de dirección y coordinación de la Política Exterior?",El Consejo de Política Exterior,Artículo 38.,doc057
+A1_016,A1,standard,¿Cómo deberan ser aprobados los proyectos de reforma constitucional?,Por mayoría de tres quintos de cada una de las Cámaras.,Artículo 167.,doc015
+A1_017,A1,standard,¿En qué casos los contratos administrativos especiales serán susceptibles de recurso especial en materia de contratación?,Cuando por sus características no sea posible fijar su precio de licitación.,Artículo 44.,doc043
+A1_018,A1,standard,¿Cada cuánto tiempo conocerá la Comisión de Seguimiento del Fondo de Reserva de la Seguridad Social de la evolución y composición del Fondo de Reserva?,Semestralmente.,Artículo 125.,doc223
+A1_019,A1,standard,"En los procedimientos de responsabilidad patrimonial, ¿cuándo podrá entenderse que la resolución es contraria a la indemnización del particular?","Cuando hayan transcurrido seis meses desde que se inició el procedimiento sin que haya recaido y se notifique resolución expresa o, en su caso, se haya formalizado el acuerdo",Artículo 91.,doc095
+A1_020,A1,standard,¿Cuál es el plazo improrrogable dentro del cual deberá desarrollarse la ejecución de la oferta de empleo público o instrumento similar?,Tres años.,Artículo 70.,doc220
+A1_021,A1,standard,"¿Es compatible el desempeño de un puesto de funcionario de carrera de la Administración General del Estado con el de cargo electivo, miembro de una corporación local?","Sí, salvo que en la corporación local desempeñe cargos retribuidos en régimen de dedicación exclusiva.",Artículo quinto.,doc054
+A1_022,A1,standard,¿A quién le competen las funciones de Ordenador General de pagos del Estado?,Al Director General del Tesoro y Política Financiera.,Artículo 75.,doc107
+A1_023,A1,standard,"¿A quién le corresponde fijar el importe de las indemnizaciones que proceda abonar cuando el Tribunal Constitucional haya declarado, a instancia de parte interesada, la existencia de un funcionamiento anormal en la tramitación de los recursos de amparo o de las cuestiones de inconstitucionalidad?",Al Consejo de Ministros.,Artículo 32.,doc082
+A1_024,A1,standard,¿Quiénes quedan obligatoriamente incluidos en el campo de aplicación del régimen especial de la Seguridad Social de los funcionarios civiles del Estado?,Los funcionarios en prácticas que aspiren a incorporarse a Cuerpos de la Administración Civil del Estado.,Artículo 8.,doc226
+A1_025,A1,standard,¿Es el embarazo una contingencia protegida por la prestación sanitaria de MUFACE?,"Sí, así lo establece el Reglamento General del Mutualismo Administrativo.",Artículo 66.,doc201
+A1_026,A1,standard,"¿Cuál es el complemento destinado a retribuir las condiciones particulares de algunos puestos de trabajo en atención a su especial dificultad técnica, dedicación, responsabilidad, incompatibilidad, peligrosidad o penosidad?",Complemento específico.,Artículo veintitrés.,doc061
+A1_027,A1,standard,¿Por quién será nombrada la presidencia de la Agencia Española de Protección de Datos?,"El Gobierno, a propuesta del Ministerio de Justicia.",Artículo 48.,doc121
+A1_028,A1,standard,"¿Qué principio se define como ""la capacidad de las Administraciones Públicas para que partiendo del conocimiento adquirido del usuario final del servicio, proporcione servicios precumplimentados y se anticipe a las necesidades""?",Personalización y proactividad.,Artículo 2.,doc184
+A1_029,A1,standard,"En caso de apreciar riesgo de incumplimiento del objetivo de estabilidad presupuestaria de una Comunidad Autónoma, se formulará advertencia motivada sobre tal situación. ¿De qué plazo dispone la Administración advertida para adoptar las medidas necesarias para evitar este riesgo?",Un mes.,Artículo 19.,doc114
+A1_030,A1,standard,¿A qué municipios se les aplicará el régimen de organización de los municipios de gran población?,"A los municipios que sean capitales de provincia, capitales autonómicas o sedes de las instituciones autonómicas cuando así lo decidan las Asambleas Legislativas correspondientes a iniciativa de los respectivos ayuntamientos.",Artículo 121.,doc148
+A1_031,A1,with_options,"¿Cuál de las siguientes materias NO puede ser objeto de delegación en las Comisiones Legislativas Permanentes para la aprobación de proyectos o proposiciones de ley?
+a) Una ley orgánica.
+b) Una ley ordinaria que regule aspectos sectoriales de una política pública.
+c) Una proposición de ley ordinaria presentada por un grupo parlamentario.
+d) Un proyecto de ley ordinaria cuya tramitación haya sido delegada, aunque el Pleno pueda recabar en cualquier momento el
+debate y votación.",Una ley orgánica.,Artículo 75.,doc015
+A1_032,A1,with_options,"Indique la respuesta correcta en relación con los municipios, de conformidad con lo establecido en la Ley 7/1985, de 2 de abril, Reguladora de las Bases del Régimen Local:
+a) El Alcalde, los Tenientes de Alcalde, el Pleno y la Junta de Gobierno Local existen en todos los ayuntamientos.
+b) Los Tenientes de Alcalde sustituyen, por el orden de su nombramiento y en los casos de vacante, ausencia o enfermedad, al Alcalde, siendo libremente designados y removidos por los miembros del Pleno municipal.
+c) El Alcalde es el Presidente de la Corporación y ostenta el control y la fiscalización de los órganos de gobierno.
+d) Corresponde al Pleno municipal en los Ayuntamientos y a la Asamblea vecinal en el régimen de Concejo Abierto la declaración de lesividad de los actos del Ayuntamiento.",Corresponde al Pleno municipal en los Ayuntamientos y a la Asamblea vecinal en el régimen de Concejo Abierto la declaración de lesividad de los actos del Ayuntamiento.,Artículo 22.,doc148
+A1_033,A1,with_options,"Indique cuál de las siguientes opciones es un objetivo operativo de la Estrategia Española de Apoyo Activo al Empleo 2025-2028:
+a) Promover la digitalización del Sistema Nacional de Empleo y el desarrollo de herramientas digitales de apoyo a la labor de los servicios públicos de empleo.
+b) Promover la participación de las entidades colaboradoras de los servicios públicos de empleo.
+c) Promover el acompañamiento integral a las empresas.
+d) Promover la plena implementación de los servicios garantizados a las personas",Promover la digitalización del Sistema Nacional de Empleo y el desarrollo de herramientas digitales de apoyo a la labor de los servicios públicos de empleo,CAPÍTULO III,doc023
+A1_034,A1,with_options,"¿Qué NO debe contener el modelo de gestión de contingencias migratorias extraordinarias para la infancia y la adolescencia migrante no acompañada, de acuerdo con lo establecido legalmente?
+a) El conjunto de criterios objetivos para la determinación, por el órgano competente de la Administración General del Estado, de cuál será la ubicación de las personas menores de edad extranjeras no acompañadas en las diferentes comunidades o ciudades autónomas.
+b) La regulación del mecanismo de derivación de las personas menores de edad extranjeras no acompañadas a otras comunidades o ciudades autónomas.
+c) Los criterios para la determinación del número de plazas por comunidad autónoma o ciudad autónoma, para atender a las personas menores de edad extranjeras no acompañadas en caso de derivación.
+d) Un análisis de la situación de las familias de las personas menores de edad extranjeras no acompañadas.",Un análisis de la situación de las familias de las personas menores de edad extranjeras no acompañadas.,Artículo 35 ter.,doc134
+A1_035,A1,with_options,"¿Cuáles de las siguientes son fuentes del Ordenamiento Jurídico Español?
+a) La Ley, los Tratados Internacionales y la jurisprudencia.
+b) La Ley, los Reglamentos y la doctrina del Tribunal Supremo.
+c) La Ley, los Reglamentos y la jurisprudencia.
+d) La Ley, la costumbre y los principios generales del derecho.","La Ley, la costumbre y los principios generales del derecho.",Artículo 1.,doc009
+A1_036,A1,with_options,"En los contratos de obras, la solvencia técnica del empresario podrá ser acreditada a elección del órgano de contratación teniendo en cuenta la relación de las obras ejecutadas en el curso de:
+a) Los dos últimos años.
+b) Los cinco últimos años.
+c) Los tres últimos años.
+d) Los cuatro últimos años.",Los cinco últimos años.,Artículo 88.,doc043
+A1_037,A1,with_options,"¿Cuál de las siguientes afirmaciones sobre los trienios es correcta?
+a) Serán iguales, en todas las Administraciones públicas, para cada uno de los grupos de clasificación según el nivel del complemento de destino que se perciba.
+b) Corresponde al índice de proporcionalidad asignado anualmente a cada uno de los grupos en que se organizan los Cuerpos y Escalas, Clases o Categorías.
+c) Serán iguales en todas las Administraciones públicas, para cada uno de los grupos en que se clasifican los cuerpos, escalas, categorías o clases de funcionarios.
+d) Corresponde al índice de proporcionalidad asignado cada tres años a cada uno de los grupos en que se organizan los Cuerpos y Escalas, Clases o Categorías.","Serán iguales en todas las Administraciones públicas, para cada uno de los grupos en que se clasifican los cuerpos, escalas, categorías o clases de funcionarios",Artículo veintitrés.,doc061
+A1_038,A1,with_options,"El nombramiento del Defensor del Pueblo será acreditado:
+a) Por el Presidente del Gobierno, con su firma.
+b) Solamente por el Presidente del Senado, con su firma.
+c) Conjuntamente por los Presidentes del Congreso y del Senado con sus firmas.
+d) Por el Rey con su firma.",Conjuntamente por los Presidentes del Congreso y del Senado con sus firmas.,Artículo cuarto.,doc125
+A1_039,A1,with_options,"Señale la afirmación correcta:
+a) El Consejo de Estado emitirá dictamen sobre cuantos asuntos sometan a su consulta el Gobierno o sus miembros.
+b) La consulta al Consejo de Estado será facultativa cuando así lo establezcan las leyes, siendo los dictámenes que emite vinculantes.
+c) Los dictámenes del Consejo de Estado serán vinculantes, salvo que su Presidente disponga lo contrario.
+d) Los asuntos en que hubiera dictaminado el Pleno del Consejo de Estado podrán remitirse a informe de otro órgano de la Administración.",El Consejo de Estado emitirá dictamen sobre cuantos asuntos sometan a su consulta el Gobierno o sus miembros.,Artículo segundo.,doc124
+A1_040,A1,with_options,"La Sala de lo Penal de la Audiencia Nacional conocerá de:
+a) Los delitos cometidos fuera del territorio nacional, cuando conforme a las leyes o a los tratados corresponda su enjuiciamiento a los Tribunales españoles.
+b) Los recursos de casación, revisión y otros extraordinarios en materia penal que establezca la ley.
+c) La instrucción y enjuiciamiento de las causas contra el Presidente del Gobierno, Presidentes del Congreso y del Senado, Presidente del Tribunal Supremo y del Consejo General del Poder Judicial, Presidente del Tribunal Constitucional, miembros del Gobierno, Diputados y Senadores.
+d) La instrucción y el fallo de las causas penales contra jueces, magistrados y miembros del Ministerio Fiscal por delitos o faltas cometidos en el ejercicio de su cargo en la comunidad autónoma, siempre que esta atribución no corresponda al Tribunal Supremo.","Los delitos cometidos fuera del territorio nacional, cuando conforme a las leyes o a los tratados corresponda su enjuiciamiento a los Tribunales españoles",Artículo 23.,doc126
+A1_041,A1,with_options,"El derecho de acceso a la información pública podrá ser limitado cuando acceder a la información suponga un perjuicio para:
+a) La seguridad nacional.
+b) La seguridad e higiene en el trabajo.
+c) La protección del anonimato de los empleados públicos.
+d) La protección de datos de carácter profesional.",La seguridad nacional.,Artículo 14.,doc089
+A1_042,A1,with_options,"Señale la respuesta correcta en materia de registros:
+a) Los Organismos públicos vinculados o dependientes de cada Administración deberán disponer de su propio registro electrónico plenamente interoperable e interconectado con el Registro Electrónico General de la Administración de la que depende.
+b) Cada Administración dispondrá de un Registro Electrónico General donde se deberá anotar la salida de los documentos oficiales provenientes de otros órganos o particulares.
+c) Las disposiciones de creación de registros electrónicos especificarán el órgano o unidad responsable de su gestión, así como la fecha y hora oficial y los días declarados como hábiles.
+d) Los Organismos públicos vinculados o dependientes de cada Administración podrán disponer de su propio registro electrónico plenamente interoperable e interconectado con el Registro Electrónico General de la Administración de la que depende.",Los Organismos públicos vinculados o dependientes de cada Administración podrán disponer de su propio registro electrónico plenamente interoperable e interconectado con el Registro Electrónico General de la Administración de la que depende.,Artículo 16.,doc095
+A1_043,A1,with_options,"Las Administraciones Públicas, en relación con sus sistemas de identificación:
+a) Podrán hacer pública la relación de certificados electrónicos utilizados, incluyendo las características de los sellos electrónicos y los prestadores que los expiden.
+b) Podrán identificarse mediante el uso de un certificado electrónico reconocido o cualificado.
+c) Deberán identificarse mediante el uso de un sello electrónico basado en una firma electrónica reconocida o cualificada que reúna los requisitos exigidos por la legislación de certificado electrónico.
+d) Podrán identificarse mediante el uso de un sello electrónico basado en un certificado electrónico reconocido o cualificado que reúna los requisitos exigidos por la legislación de firma electrónica.",Podrán identificarse mediante el uso de un sello electrónico basado en un certificado electrónico reconocido o cualificado que reúna los requisitos exigidos por la legislación de firma electrónica.,Artículo 40.,doc082
+A1_044,A1,with_options,"¿Cuál de las siguientes funciones le corresponde al Tribunal de Cuentas?
+a) El control financiero permanente.
+b) La fiscalización externa, permanente y consuntiva de la actividad económico-financiera del sector público.
+c) La función interventor","La fiscalización externa, permanente y consuntiva de la actividad económico-financiera del sector público.",Artículo 2.,doc129
+A1_045,A1,with_options,"Las cartas de servicios y sus posteriores actualizaciones serán
+aprobadas mediante:
+a) Resolución del Subsecretario del departamento al que pertenezca el órgano y se publicará en el Boletín Oficial del Estado.
+b) Resolución del Subsecretario del departamento al que pertenezca el órgano, no será necesaria la publicación en Boletín Oficial del Estado, pero sí se llevarán a cabo las acciones divulgativas más eficaces, garantizando siempre que puedan ser conocidas por los usuarios en todas sus dependencias con atención al público.
+c) Orden Ministeral del departamento al que pertenezca el órgano y se publicará en el Boletín Oficial del Estado.
+d) Orden Ministerial del departamento al que pertenezca el órgano sin que sea necesaria la publicacion en el Boletín Oficial del Estado, pero se llevarán a cabo las acciones divulgativas más eficaces, garantizando siempre que puedan ser conocidas por los usuarios en todas sus dependencias con atención al público.",Resolución del Subsecretario del departamento al que pertenezca el órgano y se publicará en el Boletín Oficial del Estado.,Artículo 11.,doc158
+A1_046,A1,off_topic,¿Qué requisitos debo cumplir para constituir una sociedad limitada en España?,,,
+A1_047,A1,off_topic,¿Cuánto tiempo de antigüedad hace falta para solicitar una excedencia voluntaria en una empresa privada?,,,
+A1_048,A1,off_topic,¿Qué recursos existen para reclamar una factura de electricidad que considero incorrecta?,,,
+A1_049,A1,off_topic,¿Cómo se solicita el certificado de antecedentes penales para trabajar en el extranjero?,,,
+A1_050,A1,off_topic,¿Cuál es el plazo para presentar la declaración de la renta de una persona física?,,,
+A1_051,A1,off_topic,¿Qué vacunas necesito para viajar a Kenia?,,,
+A1_052,A1,off_topic,¿Cómo puedo saber si un cuadro es una copia o una obra original?,,,
+A1_053,A1,off_topic,¿Qué diferencia hay entre el aceite de oliva virgen y virgen extra?,,,
+A1_054,A1,off_topic,¿Cuáles son los síntomas más comunes de una intolerancia a la lactosa?,,,
+A1_055,A1,off_topic,¿Qué documentación necesito para matricular un coche importado de otro país?,,,

@@ -44,7 +44,7 @@ WELCOME_MESSAGE = (
     "y selecciona tu examen de oposición. En caso de ser el examen A1, podrás seleccionar "
     "también el tema. Las respuestas se basarán unicamente en el temario oficial para el "
     "examen y tema seleccionados.\n\n"
-    "Lee más información pulsando en 'Readme'."
+    "Lee más información pulsando en 'Saber más'."
 )
 LOADING_MESSAGE = "⏳ Cargando los modelos, esto tarda unos segundos..."
 READY_MESSAGE = "✅ Ya puedes hacer preguntas!"
@@ -137,7 +137,7 @@ async def on_start(action: cl.Action) -> None:
     del action  # payload is empty, nothing to read
     assert _build_task is not None  # set by the startup hook
 
-    if _build_task.done():
+    if _build_task.done() and _build_task.exception() is None:
         await cl.Message(content=READY_MESSAGE).send()
         return
 

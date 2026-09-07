@@ -14,13 +14,18 @@ services:
       - ./data/qdrant:/qdrant/storage
     networks:
       - internal
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/6333"]
+      interval: 5s
+      timeout: 3s
+      retries: 60  # 5 min ceiling for cold-start disk load of the collection
 
   app:
     build: .
     restart: unless-stopped
     depends_on:
       qdrant:
-        condition: service_started
+        condition: service_healthy
     env_file:
       - .env
     environment:

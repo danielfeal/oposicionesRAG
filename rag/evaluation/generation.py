@@ -27,32 +27,32 @@ logger = logging.getLogger(__name__)
 HARNESS_ERROR = "HARNESS_ERROR"
 STATUS_OK = "OK"
 
-CORRECTNESS_PROMPT = (
-    "Eres un evaluador experto en oposiciones a la Administración Pública española. Recibes una "
-    "pregunta de examen, la respuesta correcta de referencia y la respuesta generada por un "
-    "sistema. Puntúa de 0 a 3 en qué medida la respuesta generada coincide con la de referencia:\n"
-    "3 - Coincide plenamente o es correcta en lo esencial, sin errores relevantes.\n"
-    "2 - Parcialmente correcta: acierta el núcleo pero omite o confunde parte relevante.\n"
-    "1 - Incorrecta, pero sobre el tema preguntado.\n"
-    "0 - Contradice la referencia, no responde, o declara no disponer de información.\n\n"
-    "Juzga solo el contenido, no el estilo ni la extensión. Una respuesta más detallada que la "
-    "referencia no se penaliza si todo lo que añade es correcto. Si la pregunta incluye opciones "
-    "a)-d), evalúa si la respuesta generada afirma el contenido de la opción correcta, no si cita "
-    "su letra. Responde con la puntuación y una frase breve justificándola."
-)
+CORRECTNESS_PROMPT = """\
+Eres un evaluador experto en oposiciones a la Administración Pública española. Recibes una pregunta de examen, la \
+respuesta correcta de referencia y la respuesta generada por un sistema. Puntúa de 0 a 3 en qué medida la respuesta \
+generada coincide con la de referencia:
+3 - Coincide plenamente o es correcta en lo esencial, sin errores relevantes.
+2 - Parcialmente correcta: acierta el núcleo pero omite o confunde parte relevante.
+1 - Incorrecta, pero sobre el tema preguntado.
+0 - Contradice la referencia, no responde, o declara no disponer de información.
 
-FAITHFULNESS_PROMPT = (
-    "Eres un evaluador experto en oposiciones a la Administración Pública española. Recibes unos "
-    "fragmentos de normativa (el contexto) y una respuesta generada por un sistema a partir de "
-    "ellos. Puntúa de 0 a 3 en qué medida la respuesta se apoya en el contexto:\n"
-    "3 - Todas las afirmaciones se deducen del contexto (o no afirma nada, si declara no disponer "
-    "de información).\n"
-    "2 - Parcialmente apoyada: parte de la respuesta no aparece en el contexto.\n"
-    "1 - Mayoría de afirmaciones sin apoyo en el contexto, con algún punto de contacto.\n"
-    "0 - Contradice el contexto o es una invención completa.\n\n"
-    "Evalúa únicamente si lo afirmado está respaldado por el contexto, NO si es la respuesta "
-    "correcta a la pregunta: una respuesta equivocada pero fiel al contexto puntúa alto."
-)
+Juzga solo el contenido, no el estilo ni la extensión. Una respuesta más detallada que la referencia no se penaliza si \
+todo lo que añade es correcto. Si la pregunta incluye opciones a)-d), evalúa si la respuesta generada afirma el \
+contenido de la opción correcta, no si cita su letra. Responde con la puntuación y una frase breve justificándola.
+"""
+
+FAITHFULNESS_PROMPT = """\
+Eres un evaluador experto en oposiciones a la Administración Pública española. Recibes unos fragmentos de normativa \
+(el contexto) y una respuesta generada por un sistema a partir de ellos. Puntúa de 0 a 3 en qué medida la respuesta se \
+apoya en el contexto:
+3 - Todas las afirmaciones se deducen del contexto (o no afirma nada, si declara no disponer de información).
+2 - Parcialmente apoyada: parte de la respuesta no aparece en el contexto.
+1 - Mayoría de afirmaciones sin apoyo en el contexto, con algún punto de contacto.
+0 - Contradice el contexto o es una invención completa.
+
+Evalúa únicamente si lo afirmado está respaldado por el contexto, NO si es la respuesta correcta a la pregunta: una \
+respuesta equivocada pero fiel al contexto puntúa alto.
+"""
 
 
 class JudgeVerdict(BaseModel):

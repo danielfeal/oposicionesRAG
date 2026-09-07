@@ -16,8 +16,8 @@ class GeminiClient:
     """Thin shared wrapper over one Gemini model. Injected, never per-component.
 
     `chat_structured` uses the sync surface (`.models`) because `QueryProcessor.process` must
-    stay callable synchronously from `rag/evaluation/relevance.py`. `stream_chat` uses the async
-    surface (`.aio.models`), mirroring the old Ollama client's own sync/async split.
+    stay callable synchronously from `rag/evaluation/query_processing.py`. `stream_chat` uses the
+    async surface (`.aio.models`), mirroring the old Ollama client's own sync/async split.
     """
 
     def __init__(self, config: LlmConfig) -> None:

@@ -4,7 +4,7 @@
 # terminating TLS and reverse-proxying to `app` over the internal network. 
 #
 # Bring up: docker compose up -d --build
-# Data persists under ./data/ (qdrant, caddy TLS state) and ./documentation/ (trace_db).
+# Data persists under ./data/ (qdrant, caddy TLS state).
 
 services:
   qdrant:
@@ -29,9 +29,6 @@ services:
       # pipeline outside Docker.
       - RAG_QDRANT_HOST=qdrant
       - RAG_QDRANT_PORT=6333
-      - RAG_TRACE_DB=./documentation/interactions.db
-    volumes:
-      - ./documentation:/app/documentation
     ports:
       - "127.0.0.1:8000:8000"
     networks:

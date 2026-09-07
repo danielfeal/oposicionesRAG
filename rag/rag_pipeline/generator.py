@@ -40,7 +40,7 @@ GENERATION_SYSTEM_PROMPT = (
 
 def _estimate_tokens(text: str, chars_per_token: float) -> int:
     """Approximate token count as ceil(len(text) / chars_per_token)."""
-    return -(-len(text) // int(chars_per_token)) if chars_per_token >= 1 else len(text)
+    return -(-len(text) // int(chars_per_token))
 
 
 @dataclass(frozen=True)

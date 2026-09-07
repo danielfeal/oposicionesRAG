@@ -196,6 +196,6 @@ def summarize_retriever(records: Sequence[dict], k_grid: Sequence[int]) -> list[
     """Hit Rate@k for the retriever sweep: each k has its own independently-computed rank."""
     metrics: list[StageMetrics] = []
     for k in k_grid:
-        ranks = [record["ranks"].get(str(k), record["ranks"].get(k)) for record in records]
+        ranks = [record["ranks"].get(str(k)) for record in records]
         metrics.append(StageMetrics(k=k, n_rows=len(records), hit_rate=hit_rate(ranks, k)))
     return metrics

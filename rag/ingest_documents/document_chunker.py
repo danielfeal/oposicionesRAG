@@ -52,7 +52,7 @@ class DocumentChunker:
 
     def __init__(
         self,
-        model_name: str = "intfloat/multilingual-e5-small",
+        model_name: str,
         overlap_tokens: int = 50,
         max_length_tokens: int = 1024,
     ) -> None:

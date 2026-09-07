@@ -1,6 +1,5 @@
 """Hybrid retrieval over the ingestion collection."""
 
-import logging
 from typing import Sequence
 
 from langchain_core.documents import Document
@@ -9,8 +8,6 @@ from qdrant_client import models
 
 from rag.config import AppConfig, QdrantConfig
 from rag.rag_pipeline.types import ChunkMetadata, RetrievedChunk
-
-logger = logging.getLogger(__name__)
 
 
 def build_filter(
@@ -47,8 +44,6 @@ class HybridRetriever:
     def _effective_temas(self, exam: str, temas: Sequence[str]) -> list[str]:
         """Drop the tema filter for non-A1 exams, where tema is always empty."""
         if exam != "A1" or not temas:
-            if temas:
-                logger.debug("Ignoring tema filter %s for non-A1 exam '%s'.", list(temas), exam)
             return []
         return list(temas)
 

@@ -32,7 +32,6 @@ class EvalConfig:
     retriever_results: str = "retriever.jsonl"
     generation_results: str = "generation.jsonl"
     query_processing_results: str = "query_processing.jsonl"
-    trace_db: str = "./documentation/evaluation/evaluation_traces.db"  # never interactions.db
 
     k_grid: tuple[int, ...] = (1, 2, 3, 4, 5, 10, 20)  # how many candidates to fetch
     judge_model: str = "gemini-3.7-flash"

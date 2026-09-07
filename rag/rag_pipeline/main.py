@@ -26,7 +26,6 @@ from rag.rag_pipeline.generator import AnswerGenerator
 from rag.rag_pipeline.llm_utils import GeminiClient
 from rag.rag_pipeline.query_processor import QueryProcessingResult, QueryProcessor
 from rag.rag_pipeline.retriever import HybridRetriever
-from rag.rag_pipeline.trace_store import NullTraceStore, SqliteTraceStore
 from rag.rag_pipeline.types import (
     STATUS_MESSAGES,
     PipelineStatus,
@@ -44,7 +43,6 @@ class Components:
     retriever: HybridRetriever
     query_processor: QueryProcessor
     generator: AnswerGenerator
-    trace_store: SqliteTraceStore | NullTraceStore
     config: AppConfig
 
 
@@ -70,13 +68,11 @@ def build_components(config: AppConfig | None = None) -> Components:
 
     retriever = build_retrieval_only(config)
     query_processor, generator = build_llm(config)
-    trace_store = SqliteTraceStore(config.trace_db) if config.trace_db else NullTraceStore()
 
     return Components(
         retriever=retriever,
         query_processor=query_processor,
         generator=generator,
-        trace_store=trace_store,
         config=config,
     )
 
@@ -120,9 +116,7 @@ async def answer(
     calling the query processor again - the evaluation harness's generation phase does this to
     reuse `run_query_processing`'s output rather than paying for query processing twice.
 
-    Never lets an exception escape: failures become a status on `trace`, and
-    the trace is always logged via `components.trace_store` before this
-    generator ends.
+    Never lets an exception escape: failures become a status on `trace`.
     """
     history = list(history or [])
     start = time.perf_counter()
@@ -190,7 +184,6 @@ async def answer(
             trace.durations_ms["generate"] = (time.perf_counter() - t0) * 1000
     finally:
         trace.durations_ms["total"] = (time.perf_counter() - start) * 1000
-        await asyncio.to_thread(components.trace_store.log, trace)
 
 
 async def _run_once(

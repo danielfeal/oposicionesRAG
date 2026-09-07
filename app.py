@@ -88,21 +88,14 @@ async def startup() -> None:
 
 @cl.on_app_shutdown
 async def shutdown() -> None:
-    """Close the trace store's SQLite handle, if one was ever opened.
+    """Cancel the component build if it is still running.
 
-    Cancels the build instead if it is still running, and stays silent when it
-    failed - shutdown must not raise on top of an earlier error.
+    Stays silent when it already failed - shutdown must not raise on top of an earlier error.
     """
     if _build_task is None:
         return
     if not _build_task.done():
         _build_task.cancel()
-        return
-    if _build_task.cancelled() or _build_task.exception() is not None:
-        return
-    trace_store = _build_task.result().trace_store
-    if hasattr(trace_store, "close"):
-        await asyncio.to_thread(trace_store.close)
 
 
 def _settings_widgets(exam: str) -> list[InputWidget]:

@@ -74,4 +74,3 @@ class AppConfig:
     raw_dir: str = "./corpus/raw"
     extracted_dir: str = "./corpus/extracted_text"
     chunking_review_json: str = "./documentation/chunking_review.json"
-    trace_db: str = os.getenv("RAG_TRACE_DB", "./documentation/interactions.db")

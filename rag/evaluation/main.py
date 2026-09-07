@@ -8,7 +8,6 @@ main() you don't want to execute; every phase always runs against the full datas
 
 import asyncio
 import logging
-from dataclasses import replace
 from typing import Sequence
 
 from dotenv import load_dotenv
@@ -50,7 +49,6 @@ def run_generate(config: EvalConfig, app_config: AppConfig, rows: Sequence[EvalR
     graded_rows = [row for row in rows if not row.is_off_topic]
     query_results = load_query_results(config, graded_rows)
 
-    app_config = replace(app_config, trace_db=config.trace_db)  # never the production interactions.db
     components = build_components(app_config)
 
     asyncio.run(

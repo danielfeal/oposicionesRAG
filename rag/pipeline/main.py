@@ -1,8 +1,8 @@
 """End-to-end query pipeline: query processing -> retrieve -> select context -> generate.
 
 CLI usage:
-    python -m rag.rag_pipeline.main --exam A1 --query "..."
-    python -m rag.rag_pipeline.main --exam A1 --tema II --tema V --query "..."
+    python -m rag.pipeline.main --exam A1 --query "..."
+    python -m rag.pipeline.main --exam A1 --tema II --tema V --query "..."
 """
 
 import argparse
@@ -21,12 +21,12 @@ from langchain_qdrant import FastEmbedSparse
 from qdrant_client import QdrantClient
 
 from rag.config import AppConfig
-from rag.ingest_documents.qdrant_ingestor import build_vector_store
-from rag.rag_pipeline.generator import AnswerGenerator
-from rag.rag_pipeline.llm_utils import GeminiClient
-from rag.rag_pipeline.query_processor import QueryProcessingResult, QueryProcessor
-from rag.rag_pipeline.retriever import HybridRetriever
-from rag.rag_pipeline.types import (
+from rag.ingestion.qdrant_ingestor import build_vector_store
+from rag.pipeline.generator import AnswerGenerator
+from rag.pipeline.llm_utils import GeminiClient
+from rag.pipeline.query_processor import QueryProcessingResult, QueryProcessor
+from rag.pipeline.retriever import HybridRetriever
+from rag.pipeline.types import (
     STATUS_MESSAGES,
     PipelineStatus,
     PipelineTrace,

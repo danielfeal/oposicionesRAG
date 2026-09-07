@@ -7,7 +7,7 @@ from langchain_qdrant import QdrantVectorStore
 from qdrant_client import models
 
 from rag.config import AppConfig, QdrantConfig
-from rag.rag_pipeline.types import ChunkMetadata, RetrievedChunk
+from rag.pipeline.types import ChunkMetadata, RetrievedChunk
 
 
 def build_filter(

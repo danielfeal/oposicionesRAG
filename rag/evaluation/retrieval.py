@@ -15,8 +15,8 @@ from qdrant_client import QdrantClient, models
 
 from rag.config import AppConfig
 from rag.evaluation.utils import EvalRow, append_record, reset
-from rag.rag_pipeline.retriever import HybridRetriever
-from rag.rag_pipeline.types import RetrievedChunk
+from rag.pipeline.retriever import HybridRetriever
+from rag.pipeline.types import RetrievedChunk
 
 logger = logging.getLogger(__name__)
 

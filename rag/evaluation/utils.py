@@ -13,8 +13,8 @@ from typing import Any, Mapping, Sequence
 
 import pandas as pd
 
-from rag.rag_pipeline.query_processor import QueryProcessingResult
-from rag.rag_pipeline.types import RelevanceVerdict
+from rag.pipeline.query_processor import QueryProcessingResult
+from rag.pipeline.types import RelevanceVerdict
 
 logger = logging.getLogger(__name__)
 

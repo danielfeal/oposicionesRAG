@@ -14,8 +14,8 @@ import chainlit as cl
 from chainlit.input_widget import InputWidget, Select
 
 from rag.config import AppConfig
-from rag.rag_pipeline.main import Components, answer, build_components, new_trace
-from rag.rag_pipeline.types import PipelineStatus, SourceRef
+from rag.pipeline.main import Components, answer, build_components, new_trace
+from rag.pipeline.types import PipelineStatus, SourceRef
 from scripts.hash_password import hash_password
 
 logger = logging.getLogger(__name__)

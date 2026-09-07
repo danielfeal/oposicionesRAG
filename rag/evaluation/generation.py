@@ -19,8 +19,8 @@ from tqdm import tqdm
 
 from rag.config import AppConfig
 from rag.evaluation.utils import EvalConfig, EvalRow, append_record, reset
-from rag.rag_pipeline.main import Components, answer, new_trace
-from rag.rag_pipeline.query_processor import QueryProcessingResult
+from rag.pipeline.main import Components, answer, new_trace
+from rag.pipeline.query_processor import QueryProcessingResult
 
 logger = logging.getLogger(__name__)
 

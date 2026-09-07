@@ -20,7 +20,7 @@ from qdrant_client.models import FieldCondition, Filter, MatchAny
 from tqdm import tqdm
 
 from rag.config import AppConfig
-from rag.ingest_documents.document_chunker import ChunkRecord
+from rag.ingestion.document_chunker import ChunkRecord
 
 logger = logging.getLogger(__name__)
 

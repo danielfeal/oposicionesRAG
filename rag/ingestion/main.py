@@ -8,9 +8,9 @@ import logging
 import pandas as pd
 
 from rag.config import AppConfig
-from rag.ingest_documents.document_chunker import DocumentChunker
-from rag.ingest_documents.document_reader import DocumentReader
-from rag.ingest_documents.qdrant_ingestor import QdrantIngestor
+from rag.ingestion.document_chunker import DocumentChunker
+from rag.ingestion.document_reader import DocumentReader
+from rag.ingestion.qdrant_ingestor import QdrantIngestor
 
 FROM_PDF = False
 

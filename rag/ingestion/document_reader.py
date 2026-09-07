@@ -3,7 +3,7 @@ from pathlib import Path
 from pypdf import PdfReader
 from tqdm import tqdm
 
-from rag.ingest_documents.patterns import PATTERNS
+from rag.ingestion.patterns import PATTERNS
 
 
 class DocumentReader:

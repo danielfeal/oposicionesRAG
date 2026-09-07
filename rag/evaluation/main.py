@@ -18,7 +18,7 @@ from rag.evaluation import generation, retrieval
 from rag.evaluation.query_processing import evaluate_query_processing
 from rag.evaluation.report import build_report
 from rag.evaluation.utils import EvalConfig, EvalRow, load_dataset, load_query_results
-from rag.rag_pipeline.main import build_components, build_llm, build_retrieval_only
+from rag.pipeline.main import build_components, build_llm, build_retrieval_only
 
 logger = logging.getLogger(__name__)
 

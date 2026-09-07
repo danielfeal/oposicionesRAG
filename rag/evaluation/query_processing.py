@@ -16,7 +16,7 @@ from typing import Sequence
 from tqdm import tqdm
 
 from rag.evaluation.utils import EvalRow, append_record, reset
-from rag.rag_pipeline.query_processor import QueryProcessor
+from rag.pipeline.query_processor import QueryProcessor
 
 logger = logging.getLogger(__name__)
 

@@ -12,8 +12,8 @@ from typing import Literal, Sequence
 
 from pydantic import BaseModel, Field
 
-from rag.rag_pipeline.llm_utils import GeminiClient
-from rag.rag_pipeline.types import RelevanceVerdict
+from rag.pipeline.llm_utils import GeminiClient
+from rag.pipeline.types import RelevanceVerdict
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from tqdm import tqdm
 from transformers import AutoTokenizer
 
-from rag.ingest_documents.patterns import ARTICULO_ORDINAL, CITATION_LEADIN, EMBEDDED_DOCUMENT_TITLE, PATTERNS
+from rag.ingestion.patterns import ARTICULO_ORDINAL, CITATION_LEADIN, EMBEDDED_DOCUMENT_TITLE, PATTERNS
 
 logger = logging.getLogger(__name__)
 

@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from typing import AsyncIterator, Sequence
 
 from rag.config import RetrievalConfig
-from rag.rag_pipeline.llm_utils import GeminiClient
-from rag.rag_pipeline.types import RetrievedChunk, SourceRef
+from rag.pipeline.llm_utils import GeminiClient
+from rag.pipeline.types import RetrievedChunk, SourceRef
 
 GENERATION_SYSTEM_PROMPT = (
     "Eres un tutor que ayuda a estudiantes a preparar exámenes de oposiciones a la "

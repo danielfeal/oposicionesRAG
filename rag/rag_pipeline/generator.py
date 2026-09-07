@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import AsyncIterator, Sequence
 
 from rag.config import RetrievalConfig
-from rag.rag_pipeline.llm_utils import OllamaClient
+from rag.rag_pipeline.llm_utils import GeminiClient
 from rag.rag_pipeline.types import RetrievedChunk, SourceRef
 
 GENERATION_SYSTEM_PROMPT = (
@@ -36,6 +36,11 @@ GENERATION_SYSTEM_PROMPT = (
     "información suficiente en el temario para responder a esa pregunta.' y no cites nada.\n\n"
     "Responde siempre en español."
 )
+
+
+def _estimate_tokens(text: str, chars_per_token: float) -> int:
+    """Approximate token count as ceil(len(text) / chars_per_token)."""
+    return -(-len(text) // int(chars_per_token)) if chars_per_token >= 1 else len(text)
 
 
 @dataclass(frozen=True)
@@ -79,13 +84,28 @@ def _render(chunks: Sequence[RetrievedChunk]) -> tuple[str, list[SourceRef]]:
 class AnswerGenerator:
     """Streams a Spanish answer grounded strictly in the numbered context blocks."""
 
-    def __init__(self, llm: OllamaClient, config: RetrievalConfig) -> None:
+    def __init__(self, llm: GeminiClient, config: RetrievalConfig) -> None:
         self._llm = llm
         self._config = config
 
     @staticmethod
+    def filter_context(
+        chunks: Sequence[RetrievedChunk], config: RetrievalConfig
+    ) -> tuple[list[RetrievedChunk], int]:
+        """Take the retriever's chunks, in order, up to the token budget."""
+        selected: list[RetrievedChunk] = []
+        running_tokens = 0
+        for chunk in chunks:
+            chunk_tokens = _estimate_tokens(chunk.content, config.chars_per_token)
+            if selected and running_tokens + chunk_tokens > config.max_context_tokens:
+                break
+            selected.append(chunk)
+            running_tokens += chunk_tokens
+        return selected, running_tokens
+
+    @staticmethod
     def render_context(chunks: Sequence[RetrievedChunk], n_tokens_estimate: int) -> BuiltContext:
-        """Render the reranker's selected chunks into numbered prompt blocks."""
+        """Render the selected chunks into numbered prompt blocks."""
         if not chunks:
             return BuiltContext()
         blocks, sources = _render(chunks)
@@ -96,7 +116,7 @@ class AnswerGenerator:
     async def stream(
         self, query: str, context: BuiltContext, history: Sequence[dict[str, str]]
     ) -> AsyncIterator[str]:
-        """Yield answer fragments as they arrive from Ollama."""
+        """Yield answer fragments as they arrive from Gemini."""
         messages = [{"role": "system", "content": GENERATION_SYSTEM_PROMPT}]
         messages.extend(list(history)[-self._config.max_history_turns :])
         messages.append(

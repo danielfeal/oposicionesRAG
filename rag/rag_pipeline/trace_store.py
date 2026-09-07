@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS interactions (
     status              TEXT    NOT NULL,
     message             TEXT,
     retrieved_ids       TEXT,            -- JSON [{point_id, doc_id, score}]
-    reranked_ids        TEXT,            -- JSON [{point_id, doc_id, score, prob}]
     final_ids           TEXT,            -- JSON [point_id]
     sources             TEXT,            -- JSON [SourceRef]
     answer              TEXT,
@@ -42,8 +41,6 @@ def _chunk_summary(chunks: Sequence[RetrievedChunk]) -> list[dict]:
             "point_id": c.point_id,
             "doc_id": c.metadata.doc_id,
             "retrieval_score": c.retrieval_score,
-            "rerank_score": c.rerank_score,
-            "rerank_prob": c.rerank_prob,
         }
         for c in chunks
     ]
@@ -73,9 +70,9 @@ class SqliteTraceStore:
                     INSERT INTO interactions (
                         timestamp_utc, session_id, exam, temas, raw_query,
                         condensed_query, relevance, status, message,
-                        retrieved_ids, reranked_ids, final_ids, sources,
+                        retrieved_ids, final_ids, sources,
                         answer, durations_ms, models, error
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         trace.timestamp_utc,
@@ -88,7 +85,6 @@ class SqliteTraceStore:
                         trace.status.value,
                         trace.message,
                         json.dumps(_chunk_summary(trace.retrieved), ensure_ascii=False),
-                        json.dumps(_chunk_summary(trace.reranked), ensure_ascii=False),
                         json.dumps([c.point_id for c in trace.final_chunks], ensure_ascii=False),
                         json.dumps([s.__dict__ for s in trace.sources], ensure_ascii=False),
                         trace.answer,

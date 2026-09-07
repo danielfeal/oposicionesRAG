@@ -10,7 +10,7 @@ import logging
 import os
 import statistics
 from dataclasses import asdict, dataclass, field, replace
-from typing import Sequence
+from typing import Mapping, Sequence
 
 from google import genai
 from google.genai import types
@@ -18,8 +18,9 @@ from pydantic import BaseModel, Field
 from tqdm import tqdm
 
 from rag.config import AppConfig
-from rag.evaluation.utils import EvalConfig, EvalRow, append_record, load_completed
+from rag.evaluation.utils import EvalConfig, EvalRow, append_record, reset
 from rag.rag_pipeline.main import Components, answer, new_trace
+from rag.rag_pipeline.query_processor import QueryProcessingResult
 
 logger = logging.getLogger(__name__)
 
@@ -121,17 +122,22 @@ async def score_answer(
 
 async def evaluate_row(
     row: EvalRow,
+    query_result: QueryProcessingResult,
     components: Components,
     app_config: AppConfig,
     client: genai.Client,
     config: EvalConfig,
 ) -> GenerationResult:
-    """Run one row through the real pipeline and judge the answer it produced."""
+    """Run one row through the real pipeline and judge the answer it produced.
+
+    `query_result` is `run_query_processing`'s already-computed verdict + condensation for this row, so
+    `answer()` skips calling the query processor a second time.
+    """
     trace = new_trace(app_config, row.exam, [], row.question, session_id=f"eval-{row.row_id}")
     try:
         # Drained to exhaustion, never broken early: answer()'s `finally` is what sets
         # durations_ms["total"] and logs the trace.
-        async for _token in answer(components, trace):
+        async for _token in answer(components, trace, query_result=query_result):
             pass
     except Exception as exc:
         # answer() never raises, but Qdrant or Ollama dying mid-run can. One bad row must not
@@ -190,13 +196,16 @@ async def evaluate_row(
 
 async def evaluate_generation(
     rows: Sequence[EvalRow],
+    query_results: Mapping[str, QueryProcessingResult],
     components: Components,
     app_config: AppConfig,
     config: EvalConfig,
     path: str,
-    resume: bool,
 ) -> None:
     """Run and judge every graded row, appending each record as soon as it completes.
+
+    `query_results` maps `row_id -> QueryProcessingResult` - see `evaluate_row` for why the real
+    query processor isn't called again here.
 
     Sequential by design: one CPU-bound Ollama instance serves both models, so concurrency would
     only make them evict each other. `keep_alive` is an idle timer reset on every request, so the
@@ -207,13 +216,15 @@ async def evaluate_generation(
         api_key=os.environ["GOOGLE_API_KEY"],
         project=os.environ["GOOGLE_CLOUD_PROJECT"],
         location=os.getenv("GOOGLE_CLOUD_LOCATION", "global"),
+        http_options=types.HttpOptions(
+            retry_options=types.HttpRetryOptions(attempts=2, http_status_codes=[429]),
+        )
     )
-    completed = load_completed(path) if resume else {}
-    todo = [row for row in rows if row.row_id not in completed] if resume else list(rows)
-    logger.info("Generating and judging %d rows (%d already done).", len(todo), len(completed))
+    reset(path)
+    logger.info("Generating and judging %d rows.", len(rows))
 
-    for row in tqdm(todo, desc="generate", unit="row"):
-        result = await evaluate_row(row, components, app_config, client, config)
+    for row in tqdm(rows, desc="generate", unit="row"):
+        result = await evaluate_row(row, query_results[row.row_id], components, app_config, client, config)
         append_record(path, asdict(result))
 
 
@@ -251,9 +262,14 @@ def summarize(records: Sequence[dict], max_score: int) -> GenerationMetrics:
 
 
 def stage_latencies(records: Sequence[dict]) -> list[dict]:
-    """Per-stage latency over the rows that actually reached each stage."""
+    """Per-stage latency over the rows that actually reached each stage.
+
+    No "processing" stage here: `run_generate` reuses `run_query_processing`'s condensed queries
+    instead of running the query processor again, so `durations_ms` never carries it - see
+    `query_processing.processing_latency` for that stage's timing.
+    """
     latencies: list[dict] = []
-    for stage in ("relevance", "retrieve", "rerank", "generate", "total"):
+    for stage in ("retrieve", "generate", "total"):
         values = [
             record["durations_ms"][stage]
             for record in records
@@ -266,8 +282,33 @@ def stage_latencies(records: Sequence[dict]) -> list[dict]:
                 "stage": stage,
                 "n": len(values),
                 "avg_s": round(statistics.fmean(values) / 1000, 2),
-                "p50_s": round(statistics.median(values) / 1000, 2),
                 "max_s": round(max(values) / 1000, 2),
             }
         )
     return latencies
+
+
+def score_breakdown_rows(records: Sequence[dict], score_field: str, max_score: int) -> list[dict]:
+    """One row per `question_type` plus a `total` row: a 0..max_score score histogram + average.
+
+    `score_field` is `"correctness"` or `"faithfulness"`.
+    """
+    rows = []
+    for question_type in sorted({record["question_type"] for record in records}):
+        subset = [record for record in records if record["question_type"] == question_type]
+        rows.append(_score_row(f"question_type={question_type}", subset, score_field, max_score))
+    rows.append(_score_row("total", records, score_field, max_score))
+    return rows
+
+
+def _score_row(label: str, records: Sequence[dict], score_field: str, max_score: int) -> dict:
+    """One score-histogram row: counts at each level 0..max_score, plus the average."""
+    row = {
+        "grupo": label,
+        "n_rows": len(records),
+        "n_zeroed": sum(1 for record in records if record.get("zeroed_reason")),
+    }
+    for level in range(max_score + 1):
+        row[str(level)] = sum(1 for record in records if record[score_field] == level)
+    row["avg"] = round(statistics.fmean(record[score_field] for record in records), 2) if records else 0.0
+    return row

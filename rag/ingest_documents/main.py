@@ -35,7 +35,9 @@ def main() -> None:
 
     # Process the corpus: obtain chunks and review
     chunker = DocumentChunker(
-        model_name=config.embeddings.dense_model, overlap_tokens=config.chunk_overlap_tokens
+        model_name=config.embeddings.dense_model,
+        overlap_tokens=config.chunk_overlap_tokens,
+        max_length_tokens=config.chunk_max_length_tokens,
     )
     corpus_chunks, chunking_review = chunker.run(docs, metadata_df)
     logger.info("Segmented %d documents into %d chunks.", len(chunking_review), len(corpus_chunks))

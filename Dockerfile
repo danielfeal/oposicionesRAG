@@ -1,5 +1,5 @@
-# Chainlit app image. Runs `chainlit run app.py`, talking to the `qdrant`
-# and `ollama` services over the compose network (see docker-compose.yml).
+# Chainlit app image.
+
 FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1

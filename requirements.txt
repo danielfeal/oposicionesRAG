@@ -6,7 +6,6 @@ langchain_huggingface==1.2.2
 langchain_qdrant==1.1.0
 langchain_text_splitters==1.1.2
 qdrant_client==1.18.0
-ollama==0.6.2
 transformers==5.14.1
 tqdm==4.69.1
 chainlit==2.11.1

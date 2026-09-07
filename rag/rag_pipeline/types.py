@@ -84,14 +84,12 @@ class ChunkMetadata:
 
 @dataclass
 class RetrievedChunk:
-    """A single chunk as it flows through retrieval, reranking and selection."""
+    """A single chunk as it flows through retrieval and selection."""
 
     point_id: str
     content: str
     metadata: ChunkMetadata
     retrieval_score: float  # hybrid RRF, uncalibrated
-    rerank_score: float | None = None  # cross-encoder logit
-    rerank_prob: float | None = None  # sigmoid(logit), calibrated 0..1
 
 
 @dataclass(frozen=True)
@@ -120,7 +118,6 @@ class PipelineTrace:
     status: PipelineStatus
     message: str = ""  # user-facing text for non-OK statuses
     retrieved: list[RetrievedChunk] = field(default_factory=list)
-    reranked: list[RetrievedChunk] = field(default_factory=list)
     final_chunks: list[RetrievedChunk] = field(default_factory=list)
     sources: list[SourceRef] = field(default_factory=list)
     answer: str = ""

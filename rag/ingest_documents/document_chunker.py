@@ -47,18 +47,21 @@ METADATA_CSV_COLUMNS = ["doc_id", "doc_name", "doc_date", "source_url", "exams_i
 
 class DocumentChunker:
     """Segments documents into legal-structure chunks and splits any chunk that
-    exceeds the embedding model's token limit.
+    exceeds `max_length_tokens`.
     """
 
     def __init__(
         self,
         model_name: str = "intfloat/multilingual-e5-small",
         overlap_tokens: int = 50,
+        max_length_tokens: int = 1024,
     ) -> None:
-        """Load the tokenizer and build the fallback token splitter."""
+        """Load the tokenizer and build the fallback token splitter.
+
+        `max_length_tokens` is a fixed cap chosen from the corpus's own chunk-size distribution"""
 
         self._tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self._max_length = self._tokenizer.model_max_length
+        self._max_length = min(max_length_tokens, self._tokenizer.model_max_length)
 
         # The model prepends/appends special tokens ([CLS]/[SEP]) at embedding time, but
         # the splitter's length function counts raw tokens only. Reserve room for them.

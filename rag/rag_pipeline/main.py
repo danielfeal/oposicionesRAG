@@ -1,4 +1,4 @@
-"""End-to-end query pipeline: relevance check -> retrieve -> rerank -> render context -> generate.
+"""End-to-end query pipeline: query processing -> retrieve -> select context -> generate.
 
 CLI usage:
     python -m rag.rag_pipeline.main --exam A1 --query "..."
@@ -10,11 +10,12 @@ import asyncio
 import logging
 import sys
 import time
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import AsyncIterator
 from uuid import uuid4
 
+from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_qdrant import FastEmbedSparse
 from qdrant_client import QdrantClient
@@ -22,9 +23,8 @@ from qdrant_client import QdrantClient
 from rag.config import AppConfig
 from rag.ingest_documents.qdrant_ingestor import build_vector_store
 from rag.rag_pipeline.generator import AnswerGenerator
-from rag.rag_pipeline.llm_utils import OllamaClient
-from rag.rag_pipeline.relevance import RelevanceChecker
-from rag.rag_pipeline.reranker import CrossEncoderReranker
+from rag.rag_pipeline.llm_utils import GeminiClient
+from rag.rag_pipeline.query_processor import QueryProcessingResult, QueryProcessor
 from rag.rag_pipeline.retriever import HybridRetriever
 from rag.rag_pipeline.trace_store import NullTraceStore, SqliteTraceStore
 from rag.rag_pipeline.types import (
@@ -42,50 +42,39 @@ class Components:
     """Concrete, already-constructed dependencies `answer()` orchestrates."""
 
     retriever: HybridRetriever
-    reranker: CrossEncoderReranker
-    relevance_checker: RelevanceChecker
+    query_processor: QueryProcessor
     generator: AnswerGenerator
     trace_store: SqliteTraceStore | NullTraceStore
     config: AppConfig
 
 
-def build_retrieval_only(config: AppConfig) -> tuple[HybridRetriever, CrossEncoderReranker]:
-    """Construct the retrieval stages: Qdrant client, embeddings, vector store, reranker."""
+def build_retrieval_only(config: AppConfig) -> HybridRetriever:
+    """Construct the retriever: Qdrant client, embeddings, vector store."""
     client = QdrantClient(host=config.qdrant.host, port=config.qdrant.port)
     dense_embeddings = HuggingFaceEmbeddings(model_name=config.embeddings.dense_model)
     sparse_embeddings = FastEmbedSparse(model_name=config.embeddings.sparse_model)
     vector_store = build_vector_store(client, config, dense_embeddings, sparse_embeddings)
 
-    return HybridRetriever(vector_store, config), CrossEncoderReranker(config.retrieval)
+    return HybridRetriever(vector_store, config)
 
 
-def build_ollama(config: AppConfig) -> tuple[RelevanceChecker, AnswerGenerator]:
-    """Construct the two Ollama-backed stages, warming both models.
-
-    Both models are warmed up here (forced into memory) so the first real query
-    doesn't pay for a cold load; `config.llm.keep_alive` then keeps them
-    resident between queries.
-    """
-    generation_llm = OllamaClient(config.llm)
-    relevance_llm = OllamaClient(replace(config.llm, model=config.llm.relevance_model))
-    generation_llm.warm_up()
-    relevance_llm.warm_up()
-
-    return RelevanceChecker(relevance_llm), AnswerGenerator(generation_llm, config.retrieval)
+def build_llm(config: AppConfig) -> tuple[QueryProcessor, AnswerGenerator]:
+    """Construct the two Gemini-backed stages, sharing one client and one model."""
+    llm = GeminiClient(config.llm)
+    return QueryProcessor(llm), AnswerGenerator(llm, config.retrieval)
 
 
 def build_components(config: AppConfig | None = None) -> Components:
     """Assemble the production components from configuration."""
     config = config or AppConfig()
 
-    retriever, reranker = build_retrieval_only(config)
-    relevance_checker, generator = build_ollama(config)
+    retriever = build_retrieval_only(config)
+    query_processor, generator = build_llm(config)
     trace_store = SqliteTraceStore(config.trace_db) if config.trace_db else NullTraceStore()
 
     return Components(
         retriever=retriever,
-        reranker=reranker,
-        relevance_checker=relevance_checker,
+        query_processor=query_processor,
         generator=generator,
         trace_store=trace_store,
         config=config,
@@ -103,15 +92,13 @@ def new_trace(
         exam=exam,
         temas=temas,
         raw_query=query,
-        condensed_query=query,  # no condense stage yet; kept for future multi-turn support
+        condensed_query=query,  # overwritten by the query processor once answer() runs
         relevance=RelevanceVerdict.UNKNOWN,
         status=PipelineStatus.OK,
         models={
             "dense": config.embeddings.dense_model,
             "sparse": config.embeddings.sparse_model,
-            "reranker": config.retrieval.rerank_model,
             "llm": config.llm.model,
-            "llm_relevance": config.llm.relevance_model,
         },
     )
 
@@ -120,6 +107,7 @@ async def answer(
     components: Components,
     trace: PipelineTrace,
     history: list[dict[str, str]] | None = None,
+    query_result: QueryProcessingResult | None = None,
 ) -> AsyncIterator[str]:
     """Stream an answer, mutating `trace` in place as each stage completes.
 
@@ -128,23 +116,34 @@ async def answer(
     returned, so the trace reflects whatever state the pipeline reached even
     on early exit (off-topic, no context, or an error).
 
+    Pass `query_result` to reuse an already-computed relevance verdict + condensation instead of
+    calling the query processor again - the evaluation harness's generation phase does this to
+    reuse `run_query_processing`'s output rather than paying for query processing twice.
+
     Never lets an exception escape: failures become a status on `trace`, and
     the trace is always logged via `components.trace_store` before this
     generator ends.
     """
     history = list(history or [])
     start = time.perf_counter()
-    query = trace.condensed_query
 
     try:
-        t0 = time.perf_counter()
-        trace.relevance = await asyncio.to_thread(components.relevance_checker.check, query)
-        trace.durations_ms["relevance"] = (time.perf_counter() - t0) * 1000
+        # Query processing
+        if query_result is None:
+            t0 = time.perf_counter()
+            query_result = await asyncio.to_thread(
+                components.query_processor.process, trace.condensed_query, history
+            )
+            trace.durations_ms["relevance"] = (time.perf_counter() - t0) * 1000
+        trace.condensed_query = query_result.condensed_query
+        trace.relevance = query_result.relevance
         if trace.relevance == RelevanceVerdict.OFF_TOPIC:
             trace.status = PipelineStatus.OFF_TOPIC
             trace.message = STATUS_MESSAGES[PipelineStatus.OFF_TOPIC]
             return
 
+        # Retrieval
+        query = trace.condensed_query
         t0 = time.perf_counter()
         try:
             trace.retrieved = await asyncio.to_thread(
@@ -166,20 +165,15 @@ async def answer(
             trace.message = STATUS_MESSAGES[PipelineStatus.NO_CONTEXT]
             return
 
-        t0 = time.perf_counter()
-        trace.reranked, filtered, n_tokens = await asyncio.to_thread(
-            components.reranker.rerank, query, trace.retrieved
+        # Context filtering and rendering
+        selected, n_tokens = AnswerGenerator.filter_context(
+            trace.retrieved, components.config.retrieval
         )
-        trace.durations_ms["rerank"] = (time.perf_counter() - t0) * 1000
-
-        built = components.generator.render_context(filtered, n_tokens)
+        built = components.generator.render_context(selected, n_tokens)
         trace.final_chunks = built.chunks
         trace.sources = built.sources
-        if not built.chunks:
-            trace.status = PipelineStatus.NO_CONTEXT
-            trace.message = STATUS_MESSAGES[PipelineStatus.NO_CONTEXT]
-            return
 
+        # Generation
         t0 = time.perf_counter()
         parts: list[str] = []
         try:
@@ -211,22 +205,20 @@ async def _run_once(
 
 
 def _print_trace(trace: PipelineTrace) -> None:
-    """Print status, stage timings and the reranked chunks with scores."""
+    """Print status, stage timings and the retrieved chunks with scores."""
     print(f"\nstatus: {trace.status.value}  relevance: {trace.relevance.value}")
     if trace.message:
         print(f"message: {trace.message}")
     print("durations_ms: " + ", ".join(f"{k}={v:.0f}" for k, v in trace.durations_ms.items()))
 
-    if trace.reranked:
-        print("\nreranked chunks:")
+    if trace.retrieved:
+        print("\nretrieved chunks:")
         final_ids = {c.point_id for c in trace.final_chunks}
-        print(f"{'doc_id':<10} {'seccion':<30} {'rrf':>8} {'logit':>8} {'prob':>6}  kept?")
-        for c in trace.reranked:
+        print(f"{'doc_id':<10} {'seccion':<30} {'rrf':>8}  kept?")
+        for c in trace.retrieved:
             kept = "yes" if c.point_id in final_ids else "no"
             seccion = (c.metadata.seccion or "")[:30]
-            logit = f"{c.rerank_score:.3f}" if c.rerank_score is not None else "-"
-            prob = f"{c.rerank_prob:.3f}" if c.rerank_prob is not None else "-"
-            print(f"{c.metadata.doc_id:<10} {seccion:<30} {c.retrieval_score:>8.3f} {logit:>8} {prob:>6}  {kept}")
+            print(f"{c.metadata.doc_id:<10} {seccion:<30} {c.retrieval_score:>8.3f}  {kept}")
 
     if trace.sources:
         print("\nsources:")
@@ -236,6 +228,7 @@ def _print_trace(trace: PipelineTrace) -> None:
 
 def main() -> None:
     """CLI entry point."""
+    load_dotenv()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)
 

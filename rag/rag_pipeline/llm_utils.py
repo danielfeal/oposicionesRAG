@@ -1,84 +1,100 @@
-"""Shared Ollama client used by every LLM-consuming pipeline stage."""
+"""Shared Gemini (Vertex AI) client used by every LLM-consuming pipeline stage."""
 
-import logging
-from typing import Any, AsyncIterator
+import os
+from typing import AsyncIterator, TypeVar
 
-import ollama
+from google import genai
+from google.genai import types
+from pydantic import BaseModel
 
 from rag.config import LlmConfig
 
-logger = logging.getLogger(__name__)
+_T = TypeVar("_T", bound=BaseModel)
 
 
-class OllamaClient:
-    """Thin shared wrapper over one Ollama model. Injected, never per-component.
+class GeminiClient:
+    """Thin shared wrapper over one Gemini model. Injected, never per-component.
 
-    Holds one sync and one async client so the condenser, relevance checker
-    and answer generator all talk to the same running model instance.
+    `chat_structured` uses the sync surface (`.models`) because `QueryProcessor.process` must
+    stay callable synchronously from `rag/evaluation/relevance.py`. `stream_chat` uses the async
+    surface (`.aio.models`), mirroring the old Ollama client's own sync/async split.
     """
 
     def __init__(self, config: LlmConfig) -> None:
         self._config = config
-        self._client = ollama.Client(host=config.base_url, timeout=config.timeout_s)
-        self._async_client = ollama.AsyncClient(host=config.base_url, timeout=config.timeout_s)
+        self._client = genai.Client(
+            vertexai=True,
+            api_key=os.environ["GOOGLE_API_KEY"],
+            project=os.environ["GOOGLE_CLOUD_PROJECT"],
+            location=os.getenv("GOOGLE_CLOUD_LOCATION", "global"),
+            http_options=types.HttpOptions(timeout=config.timeout_s * 1000),  # ms
+        )
 
-    def chat(
+    def chat_structured(
         self,
         messages: list[dict[str, str]],
         *,
+        response_schema: type[_T],
         temperature: float | None = None,
-        num_predict: int | None = None,
-    ) -> str:
-        """Blocking single-shot chat call."""
-        response = self._client.chat(
+        max_output_tokens: int | None = None,
+    ) -> _T:
+        """One non-streaming structured call. Returns the parsed model, like the eval judge."""
+        system_instruction, contents = self._to_contents(messages)
+        response = self._client.models.generate_content(
             model=self._config.model,
-            messages=messages,
-            think=self._config.think,
-            options=self._options(temperature, num_predict),
-            keep_alive=self._config.keep_alive,
+            contents=contents,
+            config=self._gen_config(
+                system_instruction,
+                temperature,
+                max_output_tokens,
+                response_mime_type="application/json",
+                response_schema=response_schema,
+            ),
         )
-        return response["message"]["content"]
+        return response.parsed
 
     async def stream_chat(
-        self,
-        messages: list[dict[str, str]],
-        *,
-        temperature: float | None = None,
-        num_predict: int | None = None,
+        self, messages: list[dict[str, str]], *, temperature: float | None = None
     ) -> AsyncIterator[str]:
-        """Async token stream."""
-        stream = await self._async_client.chat(
+        system_instruction, contents = self._to_contents(messages)
+        stream = await self._client.aio.models.generate_content_stream(
             model=self._config.model,
-            messages=messages,
-            think=self._config.think,
-            options=self._options(temperature, num_predict),
-            keep_alive=self._config.keep_alive,
-            stream=True,
+            contents=contents,
+            config=self._gen_config(system_instruction, temperature, None),
         )
         async for chunk in stream:
-            content = chunk["message"]["content"]
-            if content:
-                yield content
+            if chunk.text:
+                yield chunk.text
 
-    def warm_up(self) -> None:
-        """Force the model into memory now, at the configured `keep_alive`.
+    def _gen_config(
+        self,
+        system_instruction: str | None,
+        temperature: float | None,
+        max_output_tokens: int | None,
+        **extra,
+    ) -> types.GenerateContentConfig:
+        return types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            temperature=self._config.temperature if temperature is None else temperature,
+            max_output_tokens=(
+                self._config.max_output_tokens if max_output_tokens is None else max_output_tokens
+            ),
+            **extra,
+        )
 
-        Called once at startup so the first real query doesn't pay for a cold
-        load. Failures are logged, not raised.
+    @staticmethod
+    def _to_contents(messages: list[dict[str, str]]) -> tuple[str | None, list[dict]]:
+        """Split out the system message and remap "assistant" role to Gemini's "model" role.
+
+        Returns (system_instruction, contents) as a plain tuple - no shared mutable state on
+        `self`, since one `GeminiClient` instance is shared across concurrent requests.
         """
-        try:
-            self.chat(
-                [{"role": "user", "content": "Hola"}],
-                temperature=0.0,
-                num_predict=1,
-            )
-        except Exception:
-            logger.exception("Warm-up call failed for model '%s'.", self._config.model)
-
-    def _options(self, temperature: float | None, num_predict: int | None) -> dict[str, Any]:
-        """Build the Ollama `options` dict, falling back to config defaults."""
-        return {
-            "temperature": self._config.temperature if temperature is None else temperature,
-            "num_predict": self._config.num_predict if num_predict is None else num_predict,
-            "num_ctx": self._config.num_ctx,
-        }
+        system_instruction = None
+        contents = []
+        for msg in messages:
+            if msg["role"] == "system":
+                system_instruction = msg["content"]
+                continue
+            role = "model" if msg["role"] == "assistant" else "user"
+            contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+        return system_instruction, contents

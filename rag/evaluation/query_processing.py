@@ -1,35 +1,34 @@
-"""Evaluation of the relevance check: does it tell domain questions from off-topic ones?
+"""Evaluation of the query processor: does it tell domain questions from off-topic ones, and how
+does it condense each query?
 
 A standalone pass rather than a by-product of the generation run. The stage only needs
-`RelevanceChecker.check(query)` - no retrieval, no generation - so all questions cost a few
+`QueryProcessor.process(query)` - no retrieval, no generation - so all questions cost a few
 seconds each and this phase is independent of the multi-hour generation pass. It is also the
 more honest experimental design: the component is evaluated in isolation.
 """
 
 import logging
+import statistics
 import time
 from dataclasses import dataclass
 from typing import Sequence
 
 from tqdm import tqdm
 
-from rag.evaluation.utils import EvalRow, append_record, load_completed
-from rag.rag_pipeline.relevance import RelevanceChecker
+from rag.evaluation.utils import EvalRow, append_record, reset
+from rag.rag_pipeline.query_processor import QueryProcessor
 
 logger = logging.getLogger(__name__)
 
 
-def evaluate_relevance(
-    rows: Sequence[EvalRow], checker: RelevanceChecker, path: str, resume: bool
-) -> None:
-    """Classify every question and record the verdict against its dataset label."""
-    completed = load_completed(path) if resume else {}
-    todo = [row for row in rows if row.row_id not in completed] if resume else list(rows)
-    logger.info("Checking relevance for %d rows (%d already done).", len(todo), len(completed))
+def evaluate_query_processing(rows: Sequence[EvalRow], processor: QueryProcessor, path: str) -> None:
+    """Classify every question and record the verdict + condensation against its dataset label."""
+    reset(path)
+    logger.info("Running query processing for %d rows.", len(rows))
 
-    for row in tqdm(todo, desc="relevance", unit="row"):
+    for row in tqdm(rows, desc="query_processing", unit="row"):
         started = time.perf_counter()
-        verdict = checker.check(row.question)
+        result = processor.process(row.question)
         append_record(
             path,
             {
@@ -37,11 +36,30 @@ def evaluate_relevance(
                 "exam": row.exam,
                 "question_type": row.question_type,
                 "question": row.question,
+                "condensed_query": result.condensed_query,
                 "actual_off_topic": row.is_off_topic,
-                "verdict": verdict.value,
+                "verdict": result.relevance.value,
                 "duration_ms": (time.perf_counter() - started) * 1000,
             },
         )
+
+
+def processing_latency(records: Sequence[dict]) -> dict | None:
+    """Mean/max query-processing latency, in the same row shape as `generation.stage_latencies`.
+
+    Sourced from this phase's own `duration_ms`, not from `generation.jsonl`: `run_generate`
+    reuses this phase's condensed queries instead of running the query processor again, so
+    `generation.jsonl` rows never carry a "processing" duration of their own anymore.
+    """
+    if not records:
+        return None
+    values = [record["duration_ms"] for record in records]
+    return {
+        "stage": "processing",
+        "n": len(values),
+        "avg_s": round(statistics.fmean(values) / 1000, 2),
+        "max_s": round(max(values) / 1000, 2),
+    }
 
 
 @dataclass(frozen=True)

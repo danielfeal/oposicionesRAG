@@ -1,12 +1,7 @@
-"""Evaluation of the two retrieval stages, run as two genuinely independent sweeps.
+"""Evaluation of the retriever: sweeps candidate depth k with no reranking involved.
 
 Owns the definition of a correct retrieval (`chunk_matches`) and the ground-truth validation
-that proves every reference exists in the corpus. The retriever sweep (`evaluate_retriever`)
-searches over candidate depth k with no reranking at all; only once a `retriever_k` has been
-chosen from it does the reranker sweep (`evaluate_reranker`) run, retrieving and reranking once
-per row at that fixed depth and sweeping Hit Rate@k over how many reranked chunks to keep. The
-two must not run in the same loop: doing so would let the retriever depth vary with the very k
-being swept for the reranker, making the reranker numbers uninterpretable.
+that proves every reference exists in the corpus.
 """
 
 import logging
@@ -14,13 +9,12 @@ import statistics
 import time
 import unicodedata
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Mapping, Sequence
 
 from qdrant_client import QdrantClient, models
 
 from rag.config import AppConfig
-from rag.evaluation.utils import EvalRow, append_record, load_completed
-from rag.rag_pipeline.reranker import CrossEncoderReranker
+from rag.evaluation.utils import EvalRow, append_record, reset
 from rag.rag_pipeline.retriever import HybridRetriever
 from rag.rag_pipeline.types import RetrievedChunk
 
@@ -145,9 +139,12 @@ def _scroll_sections(
 
 
 def evaluate_retriever_row(
-    row: EvalRow, retriever: HybridRetriever, k_grid: Sequence[int]
+    row: EvalRow, condensed_query: str, retriever: HybridRetriever, k_grid: Sequence[int]
 ) -> dict:
     """Retrieve at every k in the grid and rank the ground truth in each, independently.
+
+    Retrieves on `condensed_query`, not `row.question`: production always retrieves on the query
+    processor's output, so evaluating on the raw question would score a different pipeline.
 
     One retrieve call per k, not a slice of one k_max call: hybrid RRF fuses per-branch
     prefetches whose limits scale with k, so the top-10 of a k=50 query is not the same as a
@@ -157,7 +154,7 @@ def evaluate_retriever_row(
     times: list[float] = []
     for k in k_grid:
         started = time.perf_counter()
-        chunks = retriever.retrieve(row.question, row.exam, [], k)
+        chunks = retriever.retrieve(condensed_query, row.exam, [], k)
         times.append((time.perf_counter() - started) * 1000)
         ranks[k] = rank_of_ground_truth(chunks, row)
 
@@ -165,77 +162,31 @@ def evaluate_retriever_row(
         "row_id": row.row_id,
         "exam": row.exam,
         "question_type": row.question_type,
+        "condensed_query": condensed_query,
         "ranks": ranks,
         "retrieve_ms": statistics.fmean(times),
     }
 
 
-def evaluate_reranker_row(
-    row: EvalRow, retriever: HybridRetriever, reranker: CrossEncoderReranker, retriever_k: int
-) -> dict:
-    """Retrieve `retriever_k` chunks once, rerank them once, and record one absolute rank.
-
-    Hit Rate@k for any k <= retriever_k is then a pure threshold on this single rank: the
-    reranker's own k is evaluated as a cutoff over one fixed reordering, never by re-retrieving
-    or re-reranking per grid point. `retriever_k` must be fixed (chosen from the retriever sweep)
-    before this runs - it is the reranker's input, not something this sweep also searches over.
-    """
-    started = time.perf_counter()
-    chunks = retriever.retrieve(row.question, row.exam, [], retriever_k)
-    retrieve_ms = (time.perf_counter() - started) * 1000
-
-    started = time.perf_counter()
-    scored, _filtered, _n_tokens = reranker.rerank(row.question, chunks)
-    rerank_ms = (time.perf_counter() - started) * 1000
-
-    return {
-        "row_id": row.row_id,
-        "exam": row.exam,
-        "question_type": row.question_type,
-        "rank": rank_of_ground_truth(scored, row),
-        "retrieve_ms": retrieve_ms,
-        "rerank_ms": rerank_ms,
-    }
-
-
 def evaluate_retriever(
     rows: Sequence[EvalRow],
+    condensed_queries: Mapping[str, str],
     retriever: HybridRetriever,
     k_grid: Sequence[int],
     path: str,
-    resume: bool,
 ) -> None:
     """Rank the ground truth in the retriever's own output, for every graded row."""
-    completed = load_completed(path) if resume else {}
-    todo = [row for row in rows if row.row_id not in completed] if resume else list(rows)
-    logger.info("Evaluating the retriever for %d rows (%d already done).", len(todo), len(completed))
+    reset(path)
+    logger.info("Evaluating the retriever for %d rows.", len(rows))
 
-    for row in todo:
-        append_record(path, evaluate_retriever_row(row, retriever, k_grid))
-
-
-def evaluate_reranker(
-    rows: Sequence[EvalRow],
-    retriever: HybridRetriever,
-    reranker: CrossEncoderReranker,
-    retriever_k: int,
-    path: str,
-    resume: bool,
-) -> None:
-    """Rank the ground truth after reranking, for every graded row, at a fixed retriever depth."""
-    completed = load_completed(path) if resume else {}
-    todo = [row for row in rows if row.row_id not in completed] if resume else list(rows)
-    logger.info("Evaluating the reranker for %d rows (%d already done).", len(todo), len(completed))
-
-    for row in todo:
-        append_record(path, evaluate_reranker_row(row, retriever, reranker, retriever_k))
+    for row in rows:
+        append_record(path, evaluate_retriever_row(row, condensed_queries[row.row_id], retriever, k_grid))
 
 
 @dataclass(frozen=True)
 class StageMetrics:
-    """Hit rate for one retrieval stage at one k."""
+    """Hit rate for the retriever at one k."""
 
-    stage: str  # "retriever" or "reranker"
     k: int
     n_rows: int
     hit_rate: float
@@ -246,36 +197,5 @@ def summarize_retriever(records: Sequence[dict], k_grid: Sequence[int]) -> list[
     metrics: list[StageMetrics] = []
     for k in k_grid:
         ranks = [record["ranks"].get(str(k), record["ranks"].get(k)) for record in records]
-        metrics.append(StageMetrics(stage="retriever", k=k, n_rows=len(records), hit_rate=hit_rate(ranks, k)))
+        metrics.append(StageMetrics(k=k, n_rows=len(records), hit_rate=hit_rate(ranks, k)))
     return metrics
-
-
-def summarize_reranker(records: Sequence[dict], k_grid: Sequence[int]) -> list[StageMetrics]:
-    """Hit Rate@k for the reranker sweep: the SAME fixed rank is thresholded at every k."""
-    ranks = [record["rank"] for record in records]
-    return [
-        StageMetrics(stage="reranker", k=k, n_rows=len(records), hit_rate=hit_rate(ranks, k))
-        for k in k_grid
-    ]
-
-
-def retriever_latencies(records: Sequence[dict]) -> dict[str, float]:
-    """Mean and max retrieval latency for the retriever sweep, in milliseconds."""
-    if not records:
-        return {}
-    retrieve = [record["retrieve_ms"] for record in records]
-    return {"retrieve_avg_ms": statistics.fmean(retrieve), "retrieve_max_ms": max(retrieve)}
-
-
-def reranker_latencies(records: Sequence[dict]) -> dict[str, float]:
-    """Mean and max retrieval and reranking latency for the reranker sweep, in milliseconds."""
-    if not records:
-        return {}
-    retrieve = [record["retrieve_ms"] for record in records]
-    rerank = [record["rerank_ms"] for record in records]
-    return {
-        "retrieve_avg_ms": statistics.fmean(retrieve),
-        "retrieve_max_ms": max(retrieve),
-        "rerank_avg_ms": statistics.fmean(rerank),
-        "rerank_max_ms": max(rerank),
-    }

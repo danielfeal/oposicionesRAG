@@ -8,7 +8,7 @@ from typing import Sequence
 
 import pandas as pd
 
-from rag.evaluation import generation, relevance, retrieval
+from rag.evaluation import generation, query_processing, retrieval
 from rag.evaluation.utils import EvalConfig, EvalRow, load_completed
 
 logger = logging.getLogger(__name__)
@@ -17,17 +17,16 @@ logger = logging.getLogger(__name__)
 def build_report(config: EvalConfig, rows: Sequence[EvalRow], out_path: str) -> None:
     """Read every artifact and write the report plus its backing tables."""
     retriever_records = list(load_completed(config.path(config.retriever_results)).values())
-    reranker_records = list(load_completed(config.path(config.reranker_results)).values())
     generation_records = list(load_completed(config.path(config.generation_results)).values())
-    relevance_records = list(load_completed(config.path(config.relevance_results)).values())
+    query_processing_records = list(load_completed(config.path(config.query_processing_results)).values())
 
     sections = [
         f"# Evaluación del RAG\n\nGenerado: {datetime.now(UTC).isoformat()}\n",
         _dataset_section(rows),
-        _retrieval_section(retriever_records, reranker_records, config),
+        _retrieval_section(retriever_records, config),
         _generation_section(generation_records, config),
-        _relevance_section(relevance_records),
-        _latency_section(retriever_records, reranker_records, generation_records),
+        _query_processing_section(query_processing_records),
+        _latency_section(query_processing_records, generation_records),
     ]
 
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
@@ -48,62 +47,41 @@ def _dataset_section(rows: Sequence[EvalRow]) -> str:
     return f"## Dataset\n\n{counts.to_markdown()}\n"
 
 
-def _retrieval_section(
-    retriever_records: Sequence[dict], reranker_records: Sequence[dict], config: EvalConfig
-) -> str:
-    """Retriever sweep and reranker sweep, reported separately - they answer different questions.
+def _retrieval_section(records: Sequence[dict], config: EvalConfig) -> str:
+    """Retriever sweep over candidate depth k. No reranker in the pipeline anymore."""
+    if not records:
+        return ""
 
-    The retriever table sweeps candidate depth k with no reranking, answering "how many
-    candidates should the retriever hand to the reranker?". The reranker table is computed at
-    the single fixed `config.retriever_k`, answering "of those, how many should the reranker
-    keep?" - its k grid is bounded by `retriever_k` and its numbers are only meaningful once
-    that depth has actually been chosen from the retriever table below.
-    """
-    sections: list[str] = []
-
-    if retriever_records:
-        overall = pd.DataFrame(
-            [asdict(m) for m in retrieval.summarize_retriever(retriever_records, config.k_grid)]
+    overall = pd.DataFrame([asdict(m) for m in retrieval.summarize_retriever(records, config.k_grid)])
+    section = (
+        "## Retrieval\n\nHit Rate@k del retriever, sin ninguna reordenación posterior.\n\n"
+        f"{overall.to_markdown(index=False)}\n"
+    )
+    by_type = [
+        {"question_type": question_type, **asdict(metric)}
+        for question_type in sorted({r["question_type"] for r in records})
+        for metric in retrieval.summarize_retriever(
+            [r for r in records if r["question_type"] == question_type], config.k_grid
         )
-        section = (
-            "### Retriever (sin reranking)\n\nHit Rate@k marca el techo: el reranker solo "
-            "reordena lo que el retriever ya ha devuelto, nunca puede superarlo.\n\n"
-            f"{overall.to_markdown(index=False)}\n"
-        )
-        by_type = [
-            {"question_type": question_type, **asdict(metric)}
-            for question_type in sorted({r["question_type"] for r in retriever_records})
-            for metric in retrieval.summarize_retriever(
-                [r for r in retriever_records if r["question_type"] == question_type], config.k_grid
-            )
-        ]
-        if by_type:
-            section += (
-                "\n#### Por tipo de pregunta\n\nLa diferencia entre `with_ref` y `standard` "
-                "mide cuánto aporta nombrar la fuente en la pregunta.\n\n"
-                f"{pd.DataFrame(by_type).to_markdown(index=False)}\n"
-            )
-        sections.append(section)
-
-    if reranker_records:
-        overall = pd.DataFrame(
-            [asdict(m) for m in retrieval.summarize_reranker(reranker_records, config.reranker_k_grid)]
-        )
-        sections.append(
-            f"### Reranker (retriever_k = {config.retriever_k})\n\nSweep de cuántos chunks "
-            "reordenados conservar, con la profundidad del retriever ya fijada.\n\n"
-            f"{overall.to_markdown(index=False)}\n"
-        )
-
-    return "## Retrieval\n\n" + "\n".join(sections) if sections else ""
+    ]
+    if by_type:
+        section += f"\n### Por tipo de pregunta\n\n{pd.DataFrame(by_type).to_markdown(index=False)}\n"
+    return section
 
 
 def _generation_section(records: Sequence[dict], config: EvalConfig) -> str:
-    """Judge scores overall and grouped, with the hard-zero breakdown."""
+    """Judge scores overall, each with its own per-question-type score-histogram table."""
     if not records:
         return ""
 
     overall = generation.summarize(records, config.judge_max_score)
+    correctness_table = pd.DataFrame(
+        generation.score_breakdown_rows(records, "correctness", config.judge_max_score)
+    )
+    faithfulness_table = pd.DataFrame(
+        generation.score_breakdown_rows(records, "faithfulness", config.judge_max_score)
+    )
+
     section = (
         f"## Generación (LLM como juez: {config.judge_model})\n\n"
         f"Puntuaciones de 0 a {config.judge_max_score}. Las filas que el pipeline no llegó a "
@@ -111,20 +89,12 @@ def _generation_section(records: Sequence[dict], config: EvalConfig) -> str:
         f"- Filas evaluadas: **{overall.n_rows}**\n"
         f"- Puntuadas a cero por fallo del pipeline: **{overall.n_zeroed}**\n"
         f"- Correctness: **{overall.correctness:.2f}** / {config.judge_max_score} "
-        f"({overall.correctness_normalized:.3f})\n"
+        f"({overall.correctness_normalized:.3f})\n\n"
+        f"{correctness_table.to_markdown(index=False)}\n\n"
         f"- Faithfulness: **{overall.faithfulness:.2f}** / {config.judge_max_score} "
-        f"({overall.faithfulness_normalized:.3f})\n"
+        f"({overall.faithfulness_normalized:.3f})\n\n"
+        f"{faithfulness_table.to_markdown(index=False)}\n"
     )
-
-    grouped: list[dict] = []
-    for key in ("exam", "question_type"):
-        for value in sorted({record[key] for record in records}):
-            subset = [record for record in records if record[key] == value]
-            grouped.append(
-                {"grupo": f"{key}={value}", **asdict(generation.summarize(subset, config.judge_max_score))}
-            )
-    if grouped:
-        section += f"\n{pd.DataFrame(grouped).to_markdown(index=False)}\n"
 
     reasons = pd.Series(
         [record["zeroed_reason"] for record in records if record.get("zeroed_reason")]
@@ -137,14 +107,14 @@ def _generation_section(records: Sequence[dict], config: EvalConfig) -> str:
     return section
 
 
-def _relevance_section(records: Sequence[dict]) -> str:
+def _query_processing_section(records: Sequence[dict]) -> str:
     """Confusion matrix of the off-topic filter."""
     if not records:
         return ""
 
-    confusion = relevance.summarize(records)
+    confusion = query_processing.summarize(records)
     return (
-        "## Relevance check (filtrado off-topic)\n\n"
+        "## Query processing (filtrado off-topic)\n\n"
         "Clase positiva: off-topic. `UNKNOWN` cuenta como *predicho relevante*, igual que en "
         "producción (fail-open).\n\n"
         "|                    | pred. off-topic | pred. relevante |\n"
@@ -152,39 +122,22 @@ def _relevance_section(records: Sequence[dict]) -> str:
         f"| **real off-topic** | {confusion.tp} | {confusion.fn} |\n"
         f"| **real relevante** | {confusion.fp} | {confusion.tn} |\n\n"
         f"- Precision: **{confusion.precision:.3f}**\n"
-        f"- Recall: **{confusion.recall:.3f}**\n"
-        f"- F1: **{confusion.f1:.3f}**\n"
         f"- Accuracy: **{confusion.accuracy:.3f}**\n"
         f"- Veredictos `UNKNOWN`: **{confusion.n_unknown}**\n"
     )
 
 
-def _latency_section(
-    retriever_records: Sequence[dict], reranker_records: Sequence[dict], generation_records: Sequence[dict]
-) -> str:
-    """Per-stage latency, over the rows that actually reached each stage."""
-    sections: list[str] = []
+def _latency_section(query_processing_records: Sequence[dict], generation_records: Sequence[dict]) -> str:
+    """Per-stage latency of the full pipeline, over the rows that actually reached each stage."""
+    rows: list[dict] = []
+    processing = query_processing.processing_latency(query_processing_records)
+    if processing:
+        rows.append(processing)
+    rows.extend(generation.stage_latencies(generation_records))
 
-    stages = generation.stage_latencies(generation_records)
-    if stages:
-        sections.append(
-            "Etapas del pipeline completo, solo sobre las filas que alcanzan cada una:\n\n"
-            f"{pd.DataFrame(stages).to_markdown(index=False)}"
-        )
-
-    retriever_latencies = retrieval.retriever_latencies(retriever_records)
-    if retriever_latencies:
-        frame = pd.DataFrame([{k: round(v, 1) for k, v in retriever_latencies.items()}])
-        sections.append(
-            f"Sweep del retriever (una llamada por k del grid):\n\n{frame.to_markdown(index=False)}"
-        )
-
-    reranker_latencies = retrieval.reranker_latencies(reranker_records)
-    if reranker_latencies:
-        frame = pd.DataFrame([{k: round(v, 1) for k, v in reranker_latencies.items()}])
-        sections.append(
-            f"Sweep del reranker (una recuperación + un reranking por fila):\n\n"
-            f"{frame.to_markdown(index=False)}"
-        )
-
-    return "## Latencia\n\n" + "\n\n".join(sections) + "\n" if sections else ""
+    if not rows:
+        return ""
+    return (
+        "## Latencia\n\nEtapas del pipeline completo, solo sobre las filas que alcanzan cada una:"
+        f"\n\n{pd.DataFrame(rows).to_markdown(index=False)}\n"
+    )

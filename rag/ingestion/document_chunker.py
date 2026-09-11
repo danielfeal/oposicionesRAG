@@ -379,15 +379,15 @@ class DocumentChunker:
         if numero_matches:
             return self._segment_by_pattern(doc_id, text, numero_matches, "articulo"), "articulo_disposicion"
 
-        # Segment by Titulo
-        title_matches = self._find_matches(PATTERNS["titulo"], body_text)
-        if title_matches:
-            return self._segment_by_pattern(doc_id, text, title_matches, "titulo"), "titulo"
-
         # Segment by Capitulo
         chapter_matches = self._find_matches(PATTERNS["capitulo"], body_text)
         if chapter_matches:
             return self._segment_by_pattern(doc_id, text, chapter_matches, "capitulo"), "capitulo"
+
+        # Segment by Titulo
+        title_matches = self._find_matches(PATTERNS["titulo"], body_text)
+        if title_matches:
+            return self._segment_by_pattern(doc_id, text, title_matches, "titulo"), "titulo"
 
         # Last-resort: fixed-size token chunking of the body text.
         return self._segment_by_length(doc_id, text, anexo_matches), "documento completo"
